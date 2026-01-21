@@ -1,0 +1,55 @@
+.permission-checkbox {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.permission-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: relative;
+  display: inline-block;
+  height: 18px;
+  width: 18px;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.permission-checkbox:hover input ~ .checkmark {
+  border-color: #007bff;
+}
+
+.permission-checkbox input:checked ~ .checkmark {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.permission-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.permission-checkbox .checkmark:after {
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+

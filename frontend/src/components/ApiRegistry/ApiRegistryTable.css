@@ -1,0 +1,144 @@
+.table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.api-registry-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.api-registry-table thead {
+  background-color: #f8f9fa;
+}
+
+.api-registry-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.api-registry-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.api-registry-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.api-registry-table tbody tr.inactive-row {
+  opacity: 0.6;
+}
+
+.method-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.method-badge-get {
+  background-color: #61affe;
+  color: white;
+}
+
+.method-badge-post {
+  background-color: #49cc90;
+  color: white;
+}
+
+.method-badge-put {
+  background-color: #fca130;
+  color: white;
+}
+
+.method-badge-delete {
+  background-color: #f93e3e;
+  color: white;
+}
+
+.method-badge-patch {
+  background-color: #50e3c2;
+  color: white;
+}
+
+.path-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.path-cell code {
+  background-color: #f4f4f4;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  color: #333;
+}
+
+.access-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.access-badge-full {
+  background-color: #28a745;
+  color: white;
+}
+
+.access-badge-read {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-button,
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #e7f3ff;
+}
+
+.delete-button:hover {
+  background-color: #ffe7e7;
+}
+
+

@@ -1,0 +1,140 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: #2c3e50;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  background: #34495e;
+  border-bottom: 1px solid #3d566e;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.menu-item {
+  margin-bottom: 0.25rem;
+}
+
+.menu-parent {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #ecf0f1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  user-select: none;
+}
+
+.menu-parent:hover {
+  background-color: #34495e;
+}
+
+.menu-parent.active {
+  background-color: #3498db;
+  color: white;
+}
+
+.menu-icon {
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.menu-arrow {
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.menu-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+.menu-children {
+  background: #1a252f;
+  padding-left: 1rem;
+}
+
+.menu-child {
+  display: block;
+  padding: 0.6rem 1.5rem;
+  padding-left: 2.5rem;
+  color: #bdc3c7;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.menu-child:hover {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.menu-child.active {
+  background-color: #2980b9;
+  color: white;
+  font-weight: 500;
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid #3d566e;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background: #c0392b;
+}
+
+/* Scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #2c3e50;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #34495e;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #3d566e;
+}
+
+

@@ -1,0 +1,18 @@
+-- Migration: Create modules table
+
+CREATE TABLE IF NOT EXISTS modules (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  `key` VARCHAR(100) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  parentKey VARCHAR(100) NULL,
+  `order` INT DEFAULT 0,
+  isActive BOOLEAN DEFAULT TRUE,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_key (`key`),
+  INDEX idx_parentKey (parentKey),
+  INDEX idx_isActive (isActive),
+  FOREIGN KEY (parentKey) REFERENCES modules(`key`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+

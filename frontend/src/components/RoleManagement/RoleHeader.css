@@ -1,0 +1,29 @@
+.role-header {
+  min-width: 150px;
+}
+
+.role-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.role-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.permission-labels {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.permission-labels .label {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+}
+
+
