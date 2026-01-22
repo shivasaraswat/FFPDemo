@@ -1,4 +1,5 @@
 const ApiRegistry = require('../models/ApiRegistry');
+const UserRole = require('../models/UserRole');
 const RolePermission = require('../models/RolePermission');
 const Module = require('../models/Module');
 const permissionCache = require('../utils/cache');
@@ -55,10 +56,10 @@ const rbac = async (req, res, next) => {
     }
 
     const { moduleKey, requiredAccess } = apiRegistry;
-    const roleId = req.user.roleId;
+    const userId = req.user.id;
 
-    // Check permission with caching
-    const hasAccess = await checkPermission(roleId, moduleKey, requiredAccess);
+    // Check permission across all user roles
+    const hasAccess = await checkPermission(userId, moduleKey, requiredAccess);
 
     if (!hasAccess) {
       return res.status(403).json({ 
@@ -74,13 +75,12 @@ const rbac = async (req, res, next) => {
   }
 };
 
-async function checkPermission(roleId, moduleKey, requiredAccess) {
-  // Check cache first
-  const cacheKey = `${roleId}:${moduleKey}`;
-  const cached = permissionCache.get(roleId, moduleKey);
+async function checkPermission(userId, moduleKey, requiredAccess) {
+  // Get all user roles
+  const userRoles = await UserRole.findByUser(userId);
   
-  if (cached !== null) {
-    return hasRequiredAccess(cached, requiredAccess);
+  if (userRoles.length === 0) {
+    return false;
   }
 
   // Get module to check parent
@@ -89,25 +89,47 @@ async function checkPermission(roleId, moduleKey, requiredAccess) {
     return false;
   }
 
-  // Check parent permission first (if exists)
-  if (module.parentKey) {
-    const parentPermission = await getPermissionFromDB(roleId, module.parentKey);
+  // Check permissions across ALL user roles (OR logic)
+  // Use highest permission level: FULL > READ > NONE
+  let highestAccess = 'NONE';
+
+  for (const userRole of userRoles) {
+    const roleId = userRole.roleId;
     
-    // If parent is NONE, deny access immediately
-    if (!parentPermission || parentPermission.access === 'NONE') {
-      permissionCache.set(roleId, moduleKey, 'NONE');
-      return false;
+    // Check cache first for this role
+    const cached = permissionCache.get(roleId, moduleKey);
+    let roleAccess = cached;
+    
+    if (cached === null) {
+      // Check parent permission first (if exists)
+      if (module.parentKey) {
+        const parentPermission = await getPermissionFromDB(roleId, module.parentKey);
+        
+        // If parent is NONE, deny access for this role
+        if (!parentPermission || parentPermission.access === 'NONE') {
+          permissionCache.set(roleId, moduleKey, 'NONE');
+          continue; // Skip this role, check next
+        }
+      }
+
+      // Check child module permission
+      const permission = await getPermissionFromDB(roleId, moduleKey);
+      roleAccess = permission ? permission.access : 'NONE';
+      
+      // Cache the result
+      permissionCache.set(roleId, moduleKey, roleAccess);
+    }
+
+    // Update highest access level
+    if (roleAccess === 'FULL') {
+      highestAccess = 'FULL';
+      break; // FULL is highest, no need to check other roles
+    } else if (roleAccess === 'READ' && highestAccess !== 'FULL') {
+      highestAccess = 'READ';
     }
   }
 
-  // Check child module permission
-  const permission = await getPermissionFromDB(roleId, moduleKey);
-  const access = permission ? permission.access : 'NONE';
-
-  // Cache the result
-  permissionCache.set(roleId, moduleKey, access);
-
-  return hasRequiredAccess(access, requiredAccess);
+  return hasRequiredAccess(highestAccess, requiredAccess);
 }
 
 async function getPermissionFromDB(roleId, moduleKey) {

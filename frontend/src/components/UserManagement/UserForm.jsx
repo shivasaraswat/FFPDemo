@@ -2,17 +2,23 @@ import React, { useState, useEffect } from 'react';
 import './UserForm.css';
 
 const UserForm = ({ user, roles, onSubmit, onCancel }) => {
+  // Separate RC/GD roles from other roles
+  const rcGdRoles = roles.filter(r => r.code === 'RC' || r.code === 'GD');
+  const otherRoles = roles.filter(r => r.code !== 'RC' && r.code !== 'GD');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    roleId: '',
+    roleIds: [], // For RC/GD roles (multi-select)
+    nonRcGdRoleId: '', // For other roles (single select)
     language: 'en',
     classification: '',
     username: '',
     mobile: '',
     iamShortId: '',
-    address: ''
+    address: '',
+    region: ''
   });
   const [errors, setErrors] = useState({});
   const [showPasswordField, setShowPasswordField] = useState(false);
@@ -20,17 +26,26 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
 
   useEffect(() => {
     if (user) {
+      // Extract roles from user object
+      const userRoles = user.roles || [];
+      const userRcGdRoleIds = userRoles
+        .filter(r => r.code === 'RC' || r.code === 'GD')
+        .map(r => r.id);
+      const userOtherRole = userRoles.find(r => r.code !== 'RC' && r.code !== 'GD');
+      
       setFormData({
         name: user.name || '',
         email: user.email || '',
         password: '', // Don't populate password in edit mode
-        roleId: user.roleId || '',
+        roleIds: userRcGdRoleIds,
+        nonRcGdRoleId: userOtherRole ? userOtherRole.id : '',
         language: user.language || 'en',
         classification: user.classification || '',
         username: user.username || '',
         mobile: user.mobile || '',
-        iamShortId: user.iamShortId || '',
-        address: user.address || ''
+        iamShortId: user.iamShortId || user.ssoId || '',
+        address: user.address || '',
+        region: user.region || ''
       });
     } else {
       // Reset form for new user
@@ -38,13 +53,15 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         name: '',
         email: '',
         password: '',
-        roleId: '',
+        roleIds: [],
+        nonRcGdRoleId: '',
         language: 'en',
         classification: '',
         username: '',
         mobile: '',
         iamShortId: '',
-        address: ''
+        address: '',
+        region: ''
       });
       setShowPasswordField(true); // Show password field for new users
     }
@@ -70,12 +87,20 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
-    if (!formData.roleId) {
-      newErrors.roleId = 'Role is required';
+    // Validate at least one role is selected
+    if (formData.roleIds.length === 0 && !formData.nonRcGdRoleId) {
+      newErrors.roles = 'At least one role is required';
     }
 
     if (!formData.language) {
       newErrors.language = 'Language is required';
+    }
+
+    // Validate region is required for RC and GD roles
+    if (formData.roleIds.length > 0) {
+      if (!formData.region || !formData.region.trim()) {
+        newErrors.region = 'Region is required for RC and GD users';
+      }
     }
 
     setErrors(newErrors);
@@ -87,14 +112,34 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     if (validate()) {
       const submitData = { ...formData };
       
+      // Combine roleIds and nonRcGdRoleId into roleIds array
+      const allRoleIds = [...submitData.roleIds];
+      if (submitData.nonRcGdRoleId) {
+        allRoleIds.push(submitData.nonRcGdRoleId);
+      }
+      submitData.roleIds = allRoleIds;
+      
+      // Remove nonRcGdRoleId (not needed in API)
+      delete submitData.nonRcGdRoleId;
+      
       // Remove password if not provided in edit mode
       if (isEditMode && !showPasswordField) {
         delete submitData.password;
       }
       
-      // Remove empty optional fields
+      // Remove empty optional fields (but keep region if RC/GD roles are selected)
+      const isRegionRequired = submitData.roleIds.length > 0;
+      
       Object.keys(submitData).forEach(key => {
         if (submitData[key] === '' && ['classification', 'username', 'mobile', 'iamShortId', 'address'].includes(key)) {
+          delete submitData[key];
+        }
+        // Remove region only if it's empty and not required
+        if (key === 'region' && submitData[key] === '' && !isRegionRequired) {
+          delete submitData[key];
+        }
+        // Remove empty roleIds array
+        if (key === 'roleIds' && Array.isArray(submitData[key]) && submitData[key].length === 0) {
           delete submitData[key];
         }
       });
@@ -104,10 +149,53 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
   };
 
   const handleChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
+    const updatedFormData = { ...formData, [field]: value };
+    setFormData(updatedFormData);
+    
+    // Clear error for the changed field
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' });
     }
+    
+    // If RC/GD roles changed, validate region requirement
+    if (field === 'roleIds') {
+      if (value.length > 0) {
+        if (!updatedFormData.region || !updatedFormData.region.trim()) {
+          setErrors({ ...errors, region: 'Region is required for RC and GD users' });
+        } else {
+          const newErrors = { ...errors };
+          delete newErrors.region;
+          setErrors(newErrors);
+        }
+      } else {
+        // Clear region error if no RC/GD roles selected
+        const newErrors = { ...errors };
+        delete newErrors.region;
+        setErrors(newErrors);
+      }
+    }
+    
+    // If region changed and RC/GD roles are selected, clear error
+    if (field === 'region' && updatedFormData.roleIds.length > 0) {
+      if (value && value.trim()) {
+        const newErrors = { ...errors };
+        delete newErrors.region;
+        setErrors(newErrors);
+      }
+    }
+  };
+
+  const handleRoleCheckboxChange = (roleId, checked) => {
+    const currentRoleIds = [...formData.roleIds];
+    if (checked) {
+      currentRoleIds.push(roleId);
+    } else {
+      const index = currentRoleIds.indexOf(roleId);
+      if (index > -1) {
+        currentRoleIds.splice(index, 1);
+      }
+    }
+    handleChange('roleIds', currentRoleIds);
   };
 
   return (
@@ -149,21 +237,42 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="roleId">Role *</label>
-              <select
-                id="roleId"
-                value={formData.roleId}
-                onChange={(e) => handleChange('roleId', parseInt(e.target.value))}
-                className={errors.roleId ? 'error' : ''}
-              >
-                <option value="">Select a role</option>
-                {roles.map(role => (
-                  <option key={role.id} value={role.id}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
-              {errors.roleId && <span className="error-message">{errors.roleId}</span>}
+              <label>Roles *</label>
+              {otherRoles.length > 0 && (
+                <div className="role-selection-group">
+                  <label className="role-group-label">Other Roles (Select One):</label>
+                  <select
+                    value={formData.nonRcGdRoleId}
+                    onChange={(e) => handleChange('nonRcGdRoleId', e.target.value ? parseInt(e.target.value) : '')}
+                    className={errors.roles ? 'error' : ''}
+                  >
+                    <option value="">Select a role</option>
+                    {otherRoles.map(role => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {rcGdRoles.length > 0 && (
+                <div className="role-selection-group">
+                  <label className="role-group-label">RC / GD Roles (Can Select Both):</label>
+                  <div className="checkbox-group">
+                    {rcGdRoles.map(role => (
+                      <label key={role.id} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={formData.roleIds.includes(role.id)}
+                          onChange={(e) => handleRoleCheckboxChange(role.id, e.target.checked)}
+                        />
+                        <span>{role.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {errors.roles && <span className="error-message">{errors.roles}</span>}
             </div>
 
             <div className="form-group">
@@ -263,15 +372,33 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="address">Address</label>
-            <textarea
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleChange('address', e.target.value)}
-              placeholder="Enter address"
-              rows="3"
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="region">
+                Region
+                {formData.roleIds.length > 0 && <span className="required-asterisk"> *</span>}
+              </label>
+              <input
+                id="region"
+                type="text"
+                value={formData.region}
+                onChange={(e) => handleChange('region', e.target.value)}
+                className={errors.region ? 'error' : ''}
+                placeholder="Enter region"
+              />
+              {errors.region && <span className="error-message">{errors.region}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="address">Address</label>
+              <textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleChange('address', e.target.value)}
+                placeholder="Enter address"
+                rows="3"
+              />
+            </div>
           </div>
 
           <div className="form-actions">

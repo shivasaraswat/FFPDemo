@@ -15,6 +15,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [permissions, setPermissions] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -28,21 +29,38 @@ export const AuthProvider = ({ children }) => {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         setIsAuthenticated(true);
-        // Fetch permissions
-        loadPermissions();
+        
+        // Set default selected role for RC/GD users
+        if (parsedUser.roles) {
+          const rcGdRoles = parsedUser.roles.filter(r => r.code === 'RC' || r.code === 'GD');
+          if (rcGdRoles.length > 0) {
+            const storedSelectedRole = localStorage.getItem('selectedRole');
+            const defaultRole = storedSelectedRole || rcGdRoles[0].code;
+            setSelectedRole(defaultRole);
+            // Load permissions for selected role
+            loadPermissions(defaultRole);
+          } else {
+            // Load all permissions if no RC/GD roles
+            loadPermissions();
+          }
+        } else {
+          // Load all permissions
+          loadPermissions();
+        }
       } catch (error) {
         console.error('Error parsing stored user:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('permissions');
+        localStorage.removeItem('selectedRole');
       }
     }
     setLoading(false);
   }, []);
 
-  const loadPermissions = async () => {
+  const loadPermissions = async (roleCode = null) => {
     try {
-      const perms = await authService.getPermissions();
+      const perms = await authService.getPermissions(roleCode);
       setPermissions(perms);
       localStorage.setItem('permissions', JSON.stringify(perms));
     } catch (error) {
@@ -61,8 +79,23 @@ export const AuthProvider = ({ children }) => {
         setUser(result.user);
         setIsAuthenticated(true);
         
-        // Load permissions
-        await loadPermissions();
+        // Set default selected role for RC/GD users
+        if (result.user.roles) {
+          const rcGdRoles = result.user.roles.filter(r => r.code === 'RC' || r.code === 'GD');
+          if (rcGdRoles.length > 0) {
+            const defaultRole = rcGdRoles[0].code;
+            setSelectedRole(defaultRole);
+            localStorage.setItem('selectedRole', defaultRole);
+            // Load permissions for selected role
+            await loadPermissions(defaultRole);
+          } else {
+            // Load all permissions if no RC/GD roles
+            await loadPermissions();
+          }
+        } else {
+          // Load all permissions
+          await loadPermissions();
+        }
         
         return { success: true };
       }
@@ -80,7 +113,16 @@ export const AuthProvider = ({ children }) => {
     authService.logout();
     setUser(null);
     setPermissions([]);
+    setSelectedRole(null);
     setIsAuthenticated(false);
+    localStorage.removeItem('selectedRole');
+  };
+
+  const handleRoleChange = async (roleCode) => {
+    setSelectedRole(roleCode);
+    localStorage.setItem('selectedRole', roleCode);
+    // Reload permissions for the selected role
+    await loadPermissions(roleCode);
   };
 
   const hasPermission = (moduleKey, requiredLevel = 'read_only') => {
@@ -90,6 +132,8 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     permissions,
+    selectedRole,
+    setSelectedRole: handleRoleChange,
     isAuthenticated,
     loading,
     login,

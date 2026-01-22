@@ -42,7 +42,9 @@ class AuthController {
 
   async getPermissions(req, res, next) {
     try {
-      const permissions = await authService.getPermissions(req.user.id);
+      // Optional roleCode query parameter for filtering permissions by role
+      const roleCode = req.query.roleCode || null;
+      const permissions = await authService.getPermissions(req.user.id, roleCode);
       res.json(permissions);
     } catch (error) {
       res.status(404).json({ error: error.message });

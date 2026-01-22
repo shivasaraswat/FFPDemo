@@ -85,6 +85,43 @@ class UserController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async getUserRoles(req, res, next) {
+    try {
+      const roles = await userService.getUserRoles(req.params.id);
+      res.json(roles);
+    } catch (error) {
+      res.status(404).json({ error: error.message });
+    }
+  }
+
+  async assignRole(req, res, next) {
+    try {
+      const { roleId } = req.body;
+      if (!roleId) {
+        return res.status(400).json({ error: 'roleId is required' });
+      }
+      const user = await userService.assignRole(req.params.id, roleId);
+      const { passwordHash, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async removeRole(req, res, next) {
+    try {
+      const roleId = parseInt(req.params.roleId);
+      if (!roleId) {
+        return res.status(400).json({ error: 'Invalid roleId' });
+      }
+      const user = await userService.removeRole(req.params.id, roleId);
+      const { passwordHash, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new UserController();

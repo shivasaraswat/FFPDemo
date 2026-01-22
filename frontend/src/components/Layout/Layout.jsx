@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from './Sidebar';
+import RoleSwitcher from '../common/RoleSwitcher';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -7,7 +8,12 @@ const Layout = ({ children }) => {
     <div className="layout">
       <Sidebar />
       <main className="main-content">
-        {children}
+        <header className="main-header">
+          <RoleSwitcher />
+        </header>
+        <div className="content-wrapper">
+          {children}
+        </div>
       </main>
     </div>
   );

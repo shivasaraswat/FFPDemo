@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/jwt');
 const User = require('../models/User');
+const UserRole = require('../models/UserRole');
 const RolePermission = require('../models/RolePermission');
 const Module = require('../models/Module');
 const { hashPassword, comparePassword } = require('../utils/password');
@@ -68,23 +69,56 @@ class AuthService {
     return userWithoutPassword;
   }
 
-  async getPermissions(userId) {
+  async getPermissions(userId, roleCode = null) {
     const user = await User.findById(userId);
     if (!user) {
       throw new Error('User not found');
     }
 
-    // Get all permissions for the user's role
-    const permissions = await RolePermission.findByRole(user.roleId);
+    // Get all user roles
+    const userRoles = await UserRole.findByUser(userId);
     
+    if (userRoles.length === 0) {
+      throw new Error('User has no roles assigned');
+    }
+
+    // If roleCode is provided, filter to only that role
+    let rolesToCheck = userRoles;
+    if (roleCode) {
+      const filteredRole = userRoles.find(r => r.roleCode === roleCode);
+      if (!filteredRole) {
+        throw new Error(`User does not have role: ${roleCode}`);
+      }
+      rolesToCheck = [filteredRole];
+    }
+
     // Get all modules to build complete permission list
     const modules = await Module.findAll();
     
-    // Build permission map with parent-child hierarchy check
+    // Build permission map
+    // If roleCode is provided, only check that role
+    // Otherwise, check ALL user roles (OR logic) for API access
     const permissionMap = new Map();
-    permissions.forEach(perm => {
-      permissionMap.set(perm.moduleKey, perm.access);
-    });
+    
+    for (const userRole of rolesToCheck) {
+      const rolePermissions = await RolePermission.findByRole(userRole.roleId);
+      
+      rolePermissions.forEach(perm => {
+        // If filtering by roleCode, use that role's permissions directly
+        // Otherwise, use highest permission level across all roles
+        if (roleCode) {
+          permissionMap.set(perm.moduleKey, perm.access);
+        } else {
+          const currentAccess = permissionMap.get(perm.moduleKey) || 'NONE';
+          const newAccess = perm.access;
+          
+          // Use highest permission level
+          if (newAccess === 'FULL' || (newAccess === 'READ' && currentAccess !== 'FULL')) {
+            permissionMap.set(perm.moduleKey, newAccess);
+          }
+        }
+      });
+    }
 
     const result = [];
 

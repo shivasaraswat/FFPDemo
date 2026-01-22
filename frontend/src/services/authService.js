@@ -16,8 +16,11 @@ export const authService = {
     return response.data;
   },
 
-  getPermissions: async () => {
-    const response = await api.get('/auth/me/permissions');
+  getPermissions: async (roleCode = null) => {
+    const url = roleCode 
+      ? `/auth/me/permissions?roleCode=${roleCode}`
+      : '/auth/me/permissions';
+    const response = await api.get(url);
     return response.data;
   },
 

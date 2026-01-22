@@ -1,12 +1,24 @@
 const pool = require('../config/database');
+const UserRole = require('./UserRole');
 
 class User {
   static async create(userData) {
-    const { name, email, passwordHash, roleId, language = 'en', isActive = true } = userData;
+    const { 
+      name, 
+      email, 
+      passwordHash, 
+      roleId, 
+      language = 'en', 
+      ssoId = null,
+      mobile = null,
+      address = null,
+      region = null,
+      isActive = true 
+    } = userData;
     const [result] = await pool.execute(
-      `INSERT INTO users (name, email, passwordHash, roleId, language, isActive) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, email, passwordHash, roleId, language, isActive]
+      `INSERT INTO users (name, email, passwordHash, roleId, language, ssoId, mobile, address, region, isActive) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, email, passwordHash, roleId, language, ssoId, mobile, address, region, isActive]
     );
     return this.findById(result.insertId);
   }
@@ -19,7 +31,24 @@ class User {
        WHERE u.id = ?`,
       [id]
     );
-    return rows[0] || null;
+    
+    if (rows.length === 0) {
+      return null;
+    }
+    
+    const user = rows[0];
+    
+    // Get all roles from user_roles table
+    const roles = await UserRole.findByUser(id);
+    user.roles = roles.map(role => ({
+      id: role.roleId,
+      name: role.roleName,
+      code: role.roleCode,
+      description: role.description,
+      isSystemRole: role.isSystemRole
+    }));
+    
+    return user;
   }
 
   static async findByEmail(email) {
@@ -30,7 +59,24 @@ class User {
        WHERE u.email = ?`,
       [email]
     );
-    return rows[0] || null;
+    
+    if (rows.length === 0) {
+      return null;
+    }
+    
+    const user = rows[0];
+    
+    // Get all roles from user_roles table
+    const roles = await UserRole.findByUser(user.id);
+    user.roles = roles.map(role => ({
+      id: role.roleId,
+      name: role.roleName,
+      code: role.roleCode,
+      description: role.description,
+      isSystemRole: role.isSystemRole
+    }));
+    
+    return user;
   }
 
   static async findAll(filters = {}) {
@@ -63,7 +109,18 @@ class User {
   }
 
   static async update(id, userData) {
-    const allowedFields = ['name', 'email', 'passwordHash', 'roleId', 'language', 'isActive'];
+    const allowedFields = [
+      'name', 
+      'email', 
+      'passwordHash', 
+      'roleId', 
+      'language', 
+      'ssoId',
+      'mobile',
+      'address',
+      'region',
+      'isActive'
+    ];
     const updates = [];
     const values = [];
 

@@ -10,12 +10,18 @@ CREATE TABLE IF NOT EXISTS users (
   passwordHash VARCHAR(255) NOT NULL,
   roleId INT NOT NULL,
   language VARCHAR(10) DEFAULT 'en',
+  ssoId VARCHAR(255) NULL COMMENT 'SSO ID or Business ID',
+  mobile VARCHAR(20) NULL COMMENT 'Phone number',
+  address TEXT NULL COMMENT 'User address',
+  region VARCHAR(100) NULL COMMENT 'Region (required for RC & GD users)',
   isActive BOOLEAN DEFAULT TRUE,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_email (email),
   INDEX idx_roleId (roleId),
-  INDEX idx_isActive (isActive)
+  INDEX idx_isActive (isActive),
+  INDEX idx_ssoId (ssoId),
+  INDEX idx_region (region)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Roles table
@@ -75,6 +81,20 @@ CREATE TABLE IF NOT EXISTS api_registry (
   INDEX idx_moduleKey (moduleKey),
   INDEX idx_isActive (isActive),
   FOREIGN KEY (moduleKey) REFERENCES modules(`key`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- User roles junction table (many-to-many relationship)
+CREATE TABLE IF NOT EXISTS user_roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  userId INT NOT NULL,
+  roleId INT NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_user_role (userId, roleId),
+  INDEX idx_userId (userId),
+  INDEX idx_roleId (roleId),
+  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (roleId) REFERENCES roles(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

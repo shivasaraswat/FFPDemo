@@ -38,6 +38,12 @@ const roles = [
     isSystemRole: true
   },
   {
+    name: 'SC/FDP',
+    code: 'SC_FDP',
+    description: 'Service Center/FUSO Dealer Partners - for Japan Market',
+    isSystemRole: true
+  },
+  {
     name: 'Read-only user',
     code: 'READ_ONLY',
     description: 'Read-only access user',
