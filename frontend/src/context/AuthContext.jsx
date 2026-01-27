@@ -24,14 +24,17 @@ export const AuthProvider = ({ children }) => {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    const storedLanguage = localStorage.getItem('language') || 'en';
-    setLanguage(storedLanguage);
     
     if (token && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         setIsAuthenticated(true);
+        
+        // Set language from user profile, fallback to stored language, then default to 'en'
+        const userLanguage = parsedUser.language || localStorage.getItem('language') || 'en';
+        setLanguage(userLanguage);
+        localStorage.setItem('language', userLanguage);
         
         // Set default selected role for RC/GD users
         if (parsedUser.roles) {
@@ -58,6 +61,10 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('selectedRole');
         localStorage.removeItem('language');
       }
+    } else {
+      // No user logged in, use default language
+      const storedLanguage = localStorage.getItem('language') || 'en';
+      setLanguage(storedLanguage);
     }
     setLoading(false);
   }, []);
@@ -82,6 +89,11 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(result.user));
         setUser(result.user);
         setIsAuthenticated(true);
+        
+        // Set language from user profile, fallback to 'en'
+        const userLanguage = result.user.language || 'en';
+        setLanguage(userLanguage);
+        localStorage.setItem('language', userLanguage);
         
         // Set default selected role for RC/GD users
         if (result.user.roles) {

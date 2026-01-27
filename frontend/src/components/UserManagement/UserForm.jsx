@@ -36,7 +36,8 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     mobile: '',
     iamShortId: '',
     address: '',
-    region: ''
+    region: '',
+    language: 'en' // Default language
   });
   const [errors, setErrors] = useState({});
   const [showPasswordField, setShowPasswordField] = useState(false);
@@ -60,7 +61,8 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         mobile: user.mobile || '',
         iamShortId: user.iamShortId || user.ssoId || '',
         address: user.address || '',
-        region: user.region || ''
+        region: user.region || '',
+        language: user.language || 'en'
       });
     } else {
       // Reset form for new user
@@ -73,7 +75,8 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         mobile: '',
         iamShortId: '',
         address: '',
-        region: ''
+        region: '',
+        language: 'en'
       });
       setShowPasswordField(true); // Show password field for new users
     }
@@ -99,9 +102,14 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
-    // Validate at least one role is selected
+    // Validate at least one role is selected (mutually exclusive)
     if (formData.roleIds.length === 0 && !formData.nonRcGdRoleId) {
       newErrors.roles = 'At least one role is required';
+    }
+    
+    // Ensure mutual exclusivity - user should not have both types selected
+    if (formData.roleIds.length > 0 && formData.nonRcGdRoleId) {
+      newErrors.roles = 'Please select either other roles OR RC/GD roles, not both';
     }
 
     // Validate region is required for RC and GD roles
@@ -157,7 +165,23 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
   };
 
   const handleChange = (field, value) => {
-    const updatedFormData = { ...formData, [field]: value };
+    let updatedFormData = { ...formData, [field]: value };
+    
+    // Make role selection mutually exclusive
+    if (field === 'nonRcGdRoleId') {
+      // If user selects an "other role", clear RC/GD checkboxes
+      if (value) {
+        updatedFormData.roleIds = [];
+        // Clear region since it's only required for RC/GD
+        updatedFormData.region = '';
+      }
+    } else if (field === 'roleIds') {
+      // If user selects RC/GD checkboxes, clear "other role" dropdown
+      if (value.length > 0) {
+        updatedFormData.nonRcGdRoleId = '';
+      }
+    }
+    
     setFormData(updatedFormData);
     
     // Clear error for the changed field
@@ -203,6 +227,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         currentRoleIds.splice(index, 1);
       }
     }
+    // handleChange will automatically clear nonRcGdRoleId when roleIds is set
     handleChange('roleIds', currentRoleIds);
   };
 
@@ -253,6 +278,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                     value={formData.nonRcGdRoleId}
                     onChange={(e) => handleChange('nonRcGdRoleId', e.target.value ? parseInt(e.target.value) : '')}
                     className={errors.roles ? 'error' : ''}
+                    disabled={formData.roleIds.length > 0}
                   >
                     <option value="">Select a role</option>
                     {otherRoles.map(role => (
@@ -261,6 +287,11 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                       </option>
                     ))}
                   </select>
+                  {formData.roleIds.length > 0 && (
+                    <small className="field-hint" style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
+                      Clear RC/GD roles to select other roles
+                    </small>
+                  )}
                 </div>
               )}
               {rcGdRoles.length > 0 && (
@@ -268,16 +299,22 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                   <label className="role-group-label">{t('rcGdRoles')}:</label>
                   <div className="checkbox-group">
                     {rcGdRoles.map(role => (
-                      <label key={role.id} className="checkbox-label">
+                      <label key={role.id} className="checkbox-label" style={{ opacity: formData.nonRcGdRoleId ? 0.5 : 1 }}>
                         <input
                           type="checkbox"
                           checked={formData.roleIds.includes(role.id)}
                           onChange={(e) => handleRoleCheckboxChange(role.id, e.target.checked)}
+                          disabled={!!formData.nonRcGdRoleId}
                         />
                         <span>{role.name}</span>
                       </label>
                     ))}
                   </div>
+                  {formData.nonRcGdRoleId && (
+                    <small className="field-hint" style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
+                      Clear other role selection to select RC/GD roles
+                    </small>
+                  )}
                 </div>
               )}
               {errors.roles && <span className="error-message">{errors.roles}</span>}
@@ -321,6 +358,18 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
 
           <div className="form-row">
             <div className="form-group">
+              <label htmlFor="language">{t('language')}</label>
+              <select
+                id="language"
+                value={formData.language}
+                onChange={(e) => handleChange('language', e.target.value)}
+              >
+                <option value="en">English</option>
+                <option value="ja">日本語 (Japanese)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
               <label htmlFor="mobile">{t('mobile')}</label>
               <input
                 id="mobile"
@@ -330,7 +379,9 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                 placeholder={t('enterMobileNumber')}
               />
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="iamShortId">{t('iamShortId')}</label>
               <input

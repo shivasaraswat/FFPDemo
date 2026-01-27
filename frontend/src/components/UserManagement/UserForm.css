@@ -142,6 +142,17 @@
   background: #fef2f2;
 }
 
+.form-group select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f3f4f6;
+}
+
+.checkbox-label input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .form-group select {
   cursor: pointer;
   appearance: none;

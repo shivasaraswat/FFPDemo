@@ -42,7 +42,7 @@ const translations = {
     'mobile': 'Mobile',
     'address': 'Address',
     'region': 'Region',
-    'iamShortId': 'IAM Short ID',
+    'iamShortId': 'Short ID',
     'ssoId': 'SSO ID',
     'activate': 'Activate',
     'deactivate': 'Deactivate',
