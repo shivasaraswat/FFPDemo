@@ -15,7 +15,7 @@ const registerValidation = [
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('roleId').isInt().withMessage('Valid roleId is required'),
-  body('language').optional().isIn(['en', 'hi']).withMessage('Language must be en or hi')
+  body('language').optional().isIn(['en', 'ja']).withMessage('Language must be en or ja')
 ];
 
 // Routes

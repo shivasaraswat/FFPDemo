@@ -1,10 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../hooks/useLanguage';
 import './UserForm.css';
 
 const UserForm = ({ user, roles, onSubmit, onCancel }) => {
+  const { t } = useLanguage();
+  
   // Separate RC/GD roles from other roles
   const rcGdRoles = roles.filter(r => r.code === 'RC' || r.code === 'GD');
   const otherRoles = roles.filter(r => r.code !== 'RC' && r.code !== 'GD');
+
+  // Region options for dropdown
+  const regionOptions = [
+    { value: '', label: 'Select a region' },
+    { value: 'North America', label: 'North America' },
+    { value: 'South America', label: 'South America' },
+    { value: 'Europe', label: 'Europe' },
+    { value: 'Asia Pacific', label: 'Asia Pacific' },
+    { value: 'Middle East', label: 'Middle East' },
+    { value: 'Africa', label: 'Africa' },
+    { value: 'Japan', label: 'Japan' },
+    { value: 'China', label: 'China' },
+    { value: 'India', label: 'India' },
+    { value: 'Southeast Asia', label: 'Southeast Asia' },
+    { value: 'Australia', label: 'Australia' },
+    { value: 'Latin America', label: 'Latin America' },
+    { value: 'Other', label: 'Other' }
+  ];
 
   const [formData, setFormData] = useState({
     name: '',
@@ -12,9 +33,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     password: '',
     roleIds: [], // For RC/GD roles (multi-select)
     nonRcGdRoleId: '', // For other roles (single select)
-    language: 'en',
-    classification: '',
-    username: '',
     mobile: '',
     iamShortId: '',
     address: '',
@@ -39,9 +57,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         password: '', // Don't populate password in edit mode
         roleIds: userRcGdRoleIds,
         nonRcGdRoleId: userOtherRole ? userOtherRole.id : '',
-        language: user.language || 'en',
-        classification: user.classification || '',
-        username: user.username || '',
         mobile: user.mobile || '',
         iamShortId: user.iamShortId || user.ssoId || '',
         address: user.address || '',
@@ -55,9 +70,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         password: '',
         roleIds: [],
         nonRcGdRoleId: '',
-        language: 'en',
-        classification: '',
-        username: '',
         mobile: '',
         iamShortId: '',
         address: '',
@@ -90,10 +102,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     // Validate at least one role is selected
     if (formData.roleIds.length === 0 && !formData.nonRcGdRoleId) {
       newErrors.roles = 'At least one role is required';
-    }
-
-    if (!formData.language) {
-      newErrors.language = 'Language is required';
     }
 
     // Validate region is required for RC and GD roles
@@ -131,7 +139,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       const isRegionRequired = submitData.roleIds.length > 0;
       
       Object.keys(submitData).forEach(key => {
-        if (submitData[key] === '' && ['classification', 'username', 'mobile', 'iamShortId', 'address'].includes(key)) {
+        if (submitData[key] === '' && ['mobile', 'iamShortId', 'address'].includes(key)) {
           delete submitData[key];
         }
         // Remove region only if it's empty and not required
@@ -202,34 +210,34 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-content user-form-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isEditMode ? 'Edit User' : 'Add New User'}</h2>
+          <h2>{isEditMode ? t('editUser') : t('addNewUser')}</h2>
           <button className="close-button" onClick={onCancel}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="user-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="name">Name *</label>
+              <label htmlFor="name">{t('name')} *</label>
               <input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 className={errors.name ? 'error' : ''}
-                placeholder="Enter full name"
+                placeholder={t('name')}
               />
               {errors.name && <span className="error-message">{errors.name}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email *</label>
+              <label htmlFor="email">{t('email')} *</label>
               <input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 className={errors.email ? 'error' : ''}
-                placeholder="user@example.com"
+                placeholder={t('email')}
               />
               {errors.email && <span className="error-message">{errors.email}</span>}
             </div>
@@ -237,10 +245,10 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Roles *</label>
+              <label>{t('roles')} *</label>
               {otherRoles.length > 0 && (
                 <div className="role-selection-group">
-                  <label className="role-group-label">Other Roles (Select One):</label>
+                  <label className="role-group-label">{t('otherRoles')}:</label>
                   <select
                     value={formData.nonRcGdRoleId}
                     onChange={(e) => handleChange('nonRcGdRoleId', e.target.value ? parseInt(e.target.value) : '')}
@@ -257,7 +265,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
               )}
               {rcGdRoles.length > 0 && (
                 <div className="role-selection-group">
-                  <label className="role-group-label">RC / GD Roles (Can Select Both):</label>
+                  <label className="role-group-label">{t('rcGdRoles')}:</label>
                   <div className="checkbox-group">
                     {rcGdRoles.map(role => (
                       <label key={role.id} className="checkbox-label">
@@ -275,26 +283,13 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
               {errors.roles && <span className="error-message">{errors.roles}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="language">Language *</label>
-              <select
-                id="language"
-                value={formData.language}
-                onChange={(e) => handleChange('language', e.target.value)}
-                className={errors.language ? 'error' : ''}
-              >
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-              </select>
-              {errors.language && <span className="error-message">{errors.language}</span>}
-            </div>
           </div>
 
           {(!isEditMode || showPasswordField) && (
             <div className="form-group">
               <label htmlFor="password">
-                {isEditMode ? 'New Password' : 'Password *'}
-                {isEditMode && <span className="field-hint">(Leave blank to keep current password)</span>}
+                {isEditMode ? t('newPassword') : `${t('password')} *`}
+                {isEditMode && <span className="field-hint">({t('leaveBlankToKeepCurrent')})</span>}
               </label>
               <input
                 id="password"
@@ -302,7 +297,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
                 className={errors.password ? 'error' : ''}
-                placeholder={isEditMode ? "Enter new password (optional)" : "Minimum 6 characters"}
+                placeholder={isEditMode ? t('enterNewPasswordOptional') : t('passwordMinLength')}
               />
               {errors.password && <span className="error-message">{errors.password}</span>}
             </div>
@@ -315,59 +310,35 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                 className="change-password-button"
                 onClick={() => setShowPasswordField(true)}
               >
-                Change Password
+                {t('changePassword')}
               </button>
             </div>
           )}
 
           <div className="form-section-divider">
-            <span>Optional Fields</span>
+            <span>{t('optionalFields')}</span>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                value={formData.username}
-                onChange={(e) => handleChange('username', e.target.value)}
-                placeholder="Enter username"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="mobile">Mobile</label>
+              <label htmlFor="mobile">{t('mobile')}</label>
               <input
                 id="mobile"
                 type="tel"
                 value={formData.mobile}
                 onChange={(e) => handleChange('mobile', e.target.value)}
-                placeholder="Enter mobile number"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="classification">Classification</label>
-              <input
-                id="classification"
-                type="text"
-                value={formData.classification}
-                onChange={(e) => handleChange('classification', e.target.value)}
-                placeholder="Enter classification"
+                placeholder={t('enterMobileNumber')}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="iamShortId">IAM Short ID</label>
+              <label htmlFor="iamShortId">{t('iamShortId')}</label>
               <input
                 id="iamShortId"
                 type="text"
                 value={formData.iamShortId}
                 onChange={(e) => handleChange('iamShortId', e.target.value)}
-                placeholder="Enter IAM Short ID"
+                placeholder={t('enterIamShortId')}
               />
             </div>
           </div>
@@ -375,27 +346,31 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="region">
-                Region
+                {t('region')}
                 {formData.roleIds.length > 0 && <span className="required-asterisk"> *</span>}
               </label>
-              <input
+              <select
                 id="region"
-                type="text"
                 value={formData.region}
                 onChange={(e) => handleChange('region', e.target.value)}
                 className={errors.region ? 'error' : ''}
-                placeholder="Enter region"
-              />
+              >
+                {regionOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
               {errors.region && <span className="error-message">{errors.region}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="address">Address</label>
+              <label htmlFor="address">{t('address')}</label>
               <textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
-                placeholder="Enter address"
+                placeholder={t('enterAddress')}
                 rows="3"
               />
             </div>
@@ -403,10 +378,10 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
 
           <div className="form-actions">
             <button type="button" className="cancel-button" onClick={onCancel}>
-              Cancel
+              {t('cancel')}
             </button>
             <button type="submit" className="submit-button">
-              {isEditMode ? 'Update User' : 'Create User'}
+              {isEditMode ? t('updateUser') : t('createUser')}
             </button>
           </div>
         </form>

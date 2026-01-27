@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [permissions, setPermissions] = useState([]);
   const [selectedRole, setSelectedRole] = useState(null);
+  const [language, setLanguage] = useState('en'); // Language state for UI
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -23,6 +24,8 @@ export const AuthProvider = ({ children }) => {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
+    const storedLanguage = localStorage.getItem('language') || 'en';
+    setLanguage(storedLanguage);
     
     if (token && storedUser) {
       try {
@@ -53,6 +56,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
         localStorage.removeItem('permissions');
         localStorage.removeItem('selectedRole');
+        localStorage.removeItem('language');
       }
     }
     setLoading(false);
@@ -114,8 +118,15 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setPermissions([]);
     setSelectedRole(null);
+    setLanguage('en');
     setIsAuthenticated(false);
     localStorage.removeItem('selectedRole');
+    localStorage.removeItem('language');
+  };
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
   };
 
   const handleRoleChange = async (roleCode) => {
@@ -134,6 +145,8 @@ export const AuthProvider = ({ children }) => {
     permissions,
     selectedRole,
     setSelectedRole: handleRoleChange,
+    language,
+    setLanguage: handleLanguageChange,
     isAuthenticated,
     loading,
     login,

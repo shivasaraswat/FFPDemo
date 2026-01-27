@@ -1,22 +1,39 @@
 .role-management-container {
-  padding: 2rem;
+  padding: 0;
   max-width: 100%;
   overflow-x: auto;
 }
 
 .role-management-header {
   margin-bottom: 2rem;
+  padding: 0 0.5rem;
 }
 
 .breadcrumb {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.breadcrumb::before {
+  content: '›';
+  color: #9ca3af;
+  margin-right: 0.25rem;
 }
 
 .role-management-header h1 {
-  color: #333;
+  color: #1f2937;
   margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-actions {
@@ -26,43 +43,66 @@
 }
 
 .add-role-button {
-  background: #007bff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  letter-spacing: 0.3px;
 }
 
 .add-role-button:hover {
-  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.add-role-button:active {
+  transform: translateY(0);
 }
 
 .message {
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 2px solid #6ee7b7;
 }
 
 .message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 2px solid #fca5a5;
 }
 
 .table-wrapper {
   overflow-x: auto;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .role-management-table {
@@ -72,7 +112,7 @@
 }
 
 .role-management-table thead {
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -82,8 +122,8 @@
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: #333;
-  border-right: 1px solid #ddd;
+  color: white;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   min-width: 250px;
 }
 
@@ -91,9 +131,9 @@
   padding: 1rem;
   text-align: center;
   font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #ddd;
-  border-right: 1px solid #ddd;
+  color: white;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .role-management-table th:last-child {
@@ -111,38 +151,32 @@
   border-right: none;
 }
 
-.table-actions {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.save-button {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background 0.3s;
-}
-
-.save-button:hover:not(:disabled) {
-  background: #218838;
-}
-
-.save-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .loading {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-  color: #666;
+  padding: 3rem 2rem;
+  font-size: 1.1rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.loading::before {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 

@@ -4,6 +4,7 @@ import { permissionService } from '../../services/permissionService';
 import { accessObjectService } from '../../services/accessObjectService';
 import AccessObjectRow from './AccessObjectRow';
 import RoleHeader from './RoleHeader';
+import AddRoleModal from './AddRoleModal';
 import './RoleManagementTable.css';
 
 const RoleManagementTable = () => {
@@ -11,9 +12,10 @@ const RoleManagementTable = () => {
   const [accessObjects, setAccessObjects] = useState([]);
   const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [expandedObjects, setExpandedObjects] = useState(new Set());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [addingRole, setAddingRole] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -113,43 +115,29 @@ const RoleManagementTable = () => {
     }
   };
 
-  // Save button is no longer needed since API calls happen on checkbox change
-  // But keeping it for bulk operations if needed in future
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      setMessage({ type: '', text: '' });
-
-      // Reload data to sync with server
-      await loadData();
-      setMessage({ type: 'success', text: 'Data refreshed' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 2000);
-    } catch (error) {
-      console.error('Failed to refresh data:', error);
-      setMessage({ type: 'error', text: 'Failed to refresh data' });
-    } finally {
-      setSaving(false);
-    }
+  const handleAddRole = () => {
+    setIsModalOpen(true);
   };
 
-  const handleAddRole = async () => {
-    const roleName = prompt('Enter role name:');
-    if (!roleName) return;
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
-    const roleCode = prompt('Enter role code (e.g., ROLE_CODE):');
-    if (!roleCode) return;
-
+  const handleModalSave = async (roleData) => {
     try {
-      await roleService.create({ 
-        name: roleName,
-        code: roleCode.toUpperCase().replace(/\s+/g, '_'),
-        description: ''
-      });
+      setAddingRole(true);
+      setMessage({ type: '', text: '' });
+      
+      await roleService.create(roleData);
       await loadData();
+      setIsModalOpen(false);
       setMessage({ type: 'success', text: 'Role added successfully' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
       console.error('Failed to add role:', error);
       setMessage({ type: 'error', text: error.response?.data?.error || 'Failed to add role' });
+    } finally {
+      setAddingRole(false);
     }
   };
 
@@ -201,15 +189,12 @@ const RoleManagementTable = () => {
         </table>
       </div>
 
-      <div className="table-actions">
-        <button 
-          className="save-button" 
-          onClick={handleSave}
-          disabled={saving}
-        >
-          {saving ? 'Saving...' : 'Save Changes'}
-        </button>
-      </div>
+      <AddRoleModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSave={handleModalSave}
+        loading={addingRole}
+      />
     </div>
   );
 };
