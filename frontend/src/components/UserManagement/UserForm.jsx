@@ -46,7 +46,19 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
   useEffect(() => {
     if (user) {
       // Extract roles from user object
-      const userRoles = user.roles || [];
+      // Handle both array format and single role format
+      let userRoles = [];
+      if (Array.isArray(user.roles)) {
+        userRoles = user.roles;
+      } else if (user.roleId && user.roleName && user.roleCode) {
+        // Handle case where roles come as single role object from getAll
+        userRoles = [{
+          id: user.roleId,
+          name: user.roleName,
+          code: user.roleCode
+        }];
+      }
+      
       const userRcGdRoleIds = userRoles
         .filter(r => r.code === 'RC' || r.code === 'GD')
         .map(r => r.id);
@@ -275,7 +287,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                 <div className="role-selection-group">
                   <label className="role-group-label">{t('otherRoles')}:</label>
                   <select
-                    value={formData.nonRcGdRoleId}
+                    value={formData.nonRcGdRoleId || ''}
                     onChange={(e) => handleChange('nonRcGdRoleId', e.target.value ? parseInt(e.target.value) : '')}
                     className={errors.roles ? 'error' : ''}
                     disabled={formData.roleIds.length > 0}

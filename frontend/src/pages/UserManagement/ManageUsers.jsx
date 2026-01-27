@@ -48,9 +48,20 @@ const ManageUsers = () => {
     setShowForm(true);
   };
 
-  const handleEdit = (user) => {
-    setEditingUser(user);
-    setShowForm(true);
+  const handleEdit = async (user) => {
+    try {
+      // Fetch full user data with roles
+      const fullUserData = await userService.getById(user.id);
+      setEditingUser(fullUserData);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+      setMessage({ 
+        type: 'error', 
+        text: 'Failed to load user data for editing' 
+      });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    }
   };
 
   const handleDelete = async (id) => {
