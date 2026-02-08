@@ -45,6 +45,28 @@ const rbac = async (req, res, next) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
+    // Special case: Allow users to update their own profile without MANAGE_USERS permission
+    // Only applies to PUT /api/users/:id (not sub-routes like /api/users/:id/roles)
+    if (method === 'PUT' && path.startsWith('/api/users/') && path !== '/api/users') {
+      // Extract user ID from path (e.g., /api/users/9 -> 9)
+      const pathParts = path.split('/');
+      const userIdParamStr = pathParts[pathParts.length - 1];
+      const userIdParam = parseInt(userIdParamStr);
+      
+      // Only proceed if this is a direct user update (not a sub-route like /roles)
+      // Check if the last part is a number and there are exactly 4 path parts: ['', 'api', 'users', '9']
+      if (!isNaN(userIdParam) && pathParts.length === 4) {
+        const currentUserId = req.user.id;
+        
+        // If user is updating themselves, allow profile updates (but service will restrict what can be changed)
+        if (userIdParam === currentUserId) {
+          // Skip RBAC check for self-profile updates
+          // The service layer will validate that only profile fields can be updated, not roles
+          return next();
+        }
+      }
+    }
+
     // Look up API in registry
     const apiRegistry = await ApiRegistry.matchApi(method, path);
 

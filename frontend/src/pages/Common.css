@@ -2,6 +2,7 @@
   padding: 0;
   min-height: calc(100vh - 0px);
   background: transparent;
+  width: 100%;
 }
 
 .page-header {
@@ -12,13 +13,9 @@
 .page-header h1 {
   color: #1f2937;
   margin-bottom: 0.75rem;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.3px;
 }
 
 .breadcrumb {
@@ -43,12 +40,11 @@
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
   animation: fadeInUp 0.5s ease-out;
 }
@@ -65,8 +61,7 @@
 }
 
 .card:hover {
-  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -2px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .card h2 {
@@ -109,18 +104,19 @@ button, .btn {
   gap: 0.5rem;
 }
 
-button:not(.logout-button):not(.login-button), .btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):not(.action-btn):not(.pagination-btn), .btn {
+  background: #dc2626;
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-button:not(.logout-button):not(.login-button):hover, .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):not(.action-btn):not(.pagination-btn):hover, .btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
 }
 
-button:not(.logout-button):not(.login-button):active, .btn:active {
+button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):not(.action-btn):not(.pagination-btn):active, .btn:active {
   transform: translateY(0);
 }
 
@@ -151,9 +147,9 @@ input:hover, select:hover, textarea:hover {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #dc2626;
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 label {
@@ -168,26 +164,27 @@ label {
 /* Table styles */
 table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #f9fafb;
+  color: #374151;
 }
 
 thead th {
-  padding: 1rem 1.25rem;
+  padding: 1rem;
   text-align: left;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 tbody tr {
@@ -197,13 +194,12 @@ tbody tr {
 
 tbody tr:hover {
   background: #f9fafb;
-  transform: scale(1.01);
 }
 
 tbody td {
-  padding: 1rem 1.25rem;
+  padding: 1rem;
   color: #374151;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
 }
 
 /* Error and success messages */

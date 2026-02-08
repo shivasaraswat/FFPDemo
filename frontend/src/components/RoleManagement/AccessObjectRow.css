@@ -23,21 +23,23 @@
   padding: 0.25rem;
   display: flex;
   align-items: center;
-  color: #007bff;
-  transition: transform 0.2s;
+  justify-content: center;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  width: 20px;
+  height: 20px;
 }
 
 .expand-button:hover {
-  opacity: 0.7;
+  color: #374151;
 }
 
-.chevron {
-  font-size: 0.75rem;
-  transition: transform 0.2s;
-  display: inline-block;
+.chevron-icon {
+  transition: transform 0.2s ease;
+  color: currentColor;
 }
 
-.chevron.expanded {
+.chevron-icon.expanded {
   transform: rotate(180deg);
 }
 

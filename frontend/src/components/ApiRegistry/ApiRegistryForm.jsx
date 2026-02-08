@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './ApiRegistryForm.css';
 
 const ApiRegistryForm = ({ api, modules, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -59,21 +58,21 @@ const ApiRegistryForm = ({ api, modules, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{api ? 'Edit API Registration' : 'Add API Registration'}</h2>
-          <button className="close-button" onClick={onCancel}>×</button>
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000]" onClick={onCancel}>
+      <div className="bg-white rounded-lg w-[90%] max-w-[600px] max-h-[90vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-6 border-b border-gray-300">
+          <h2 className="m-0 text-2xl">{api ? 'Edit API Registration' : 'Add API Registration'}</h2>
+          <button className="bg-transparent border-none text-3xl cursor-pointer text-gray-600 leading-none p-0 w-8 h-8 flex items-center justify-center hover:text-black transition-colors" onClick={onCancel}>×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="api-registry-form">
-          <div className="form-group">
-            <label htmlFor="method">HTTP Method *</label>
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="mb-6">
+            <label htmlFor="method" className="block mb-2 font-medium text-gray-800">HTTP Method *</label>
             <select
               id="method"
               value={formData.method}
               onChange={(e) => handleChange('method', e.target.value)}
-              className={errors.method ? 'error' : ''}
+              className={`w-full py-3 px-3 border rounded-md text-base box-border focus:outline-none focus:ring-2 focus:ring-blue-500/10 ${errors.method ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500`}
             >
               <option value="GET">GET</option>
               <option value="POST">POST</option>
@@ -81,30 +80,30 @@ const ApiRegistryForm = ({ api, modules, onSubmit, onCancel }) => {
               <option value="DELETE">DELETE</option>
               <option value="PATCH">PATCH</option>
             </select>
-            {errors.method && <span className="error-message">{errors.method}</span>}
+            {errors.method && <span className="block text-red-600 text-sm mt-1">{errors.method}</span>}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="path">API Path *</label>
+          <div className="mb-6">
+            <label htmlFor="path" className="block mb-2 font-medium text-gray-800">API Path *</label>
             <input
               type="text"
               id="path"
               value={formData.path}
               onChange={(e) => handleChange('path', e.target.value)}
               placeholder="/api/example/path"
-              className={errors.path ? 'error' : ''}
+              className={`w-full py-3 px-3 border rounded-md text-base box-border focus:outline-none focus:ring-2 focus:ring-blue-500/10 ${errors.path ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500`}
             />
-            {errors.path && <span className="error-message">{errors.path}</span>}
-            <small>Path must start with /api/ (e.g., /api/users, /api/users/:id)</small>
+            {errors.path && <span className="block text-red-600 text-sm mt-1">{errors.path}</span>}
+            <small className="block text-gray-600 text-sm mt-1">Path must start with /api/ (e.g., /api/users, /api/users/:id)</small>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="moduleKey">Module *</label>
+          <div className="mb-6">
+            <label htmlFor="moduleKey" className="block mb-2 font-medium text-gray-800">Module *</label>
             <select
               id="moduleKey"
               value={formData.moduleKey}
               onChange={(e) => handleChange('moduleKey', e.target.value)}
-              className={errors.moduleKey ? 'error' : ''}
+              className={`w-full py-3 px-3 border rounded-md text-base box-border focus:outline-none focus:ring-2 focus:ring-blue-500/10 ${errors.moduleKey ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500`}
             >
               <option value="">Select a module</option>
               {modules.map(module => (
@@ -113,38 +112,40 @@ const ApiRegistryForm = ({ api, modules, onSubmit, onCancel }) => {
                 </option>
               ))}
             </select>
-            {errors.moduleKey && <span className="error-message">{errors.moduleKey}</span>}
+            {errors.moduleKey && <span className="block text-red-600 text-sm mt-1">{errors.moduleKey}</span>}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="requiredAccess">Required Access *</label>
+          <div className="mb-6">
+            <label htmlFor="requiredAccess" className="block mb-2 font-medium text-gray-800">Required Access *</label>
             <select
               id="requiredAccess"
               value={formData.requiredAccess}
               onChange={(e) => handleChange('requiredAccess', e.target.value)}
+              className="w-full py-3 px-3 border border-gray-300 rounded-md text-base box-border focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
             >
               <option value="READ">READ - Read-only access</option>
               <option value="FULL">FULL - Full access (read + write)</option>
             </select>
-            <small>Users need this access level to use this API endpoint</small>
+            <small className="block text-gray-600 text-sm mt-1">Users need this access level to use this API endpoint</small>
           </div>
 
-          <div className="form-group checkbox-group">
-            <label>
+          <div className="mb-6">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.isActive}
                 onChange={(e) => handleChange('isActive', e.target.checked)}
+                className="w-auto cursor-pointer"
               />
-              Active (API is registered and enforced)
+              <span className="text-gray-800">Active (API is registered and enforced)</span>
             </label>
           </div>
 
-          <div className="form-actions">
-            <button type="button" className="cancel-button" onClick={onCancel}>
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-300">
+            <button type="button" className="px-6 py-3 border-none rounded-md text-base cursor-pointer font-medium bg-gray-600 text-white hover:bg-gray-700 transition-colors" onClick={onCancel}>
               Cancel
             </button>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="px-6 py-3 border-none rounded-md text-base cursor-pointer font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">
               {api ? 'Update' : 'Create'} API Registration
             </button>
           </div>

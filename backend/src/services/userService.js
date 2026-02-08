@@ -19,6 +19,11 @@ class UserService {
   async create(userData) {
     const { email, password, iamShortId, roleIds, roleId, ...otherData } = userData;
 
+    // Normalize name field: trim and replace multiple spaces with single space
+    if (otherData.name !== undefined) {
+      otherData.name = otherData.name.trim().replace(/\s+/g, ' ');
+    }
+
     // Map iamShortId to ssoId for backward compatibility
     if (iamShortId !== undefined && !otherData.ssoId) {
       otherData.ssoId = iamShortId;
@@ -133,10 +138,39 @@ class UserService {
     }
   }
 
-  async update(id, userData) {
+  async update(id, userData, requestingUserId = null) {
     const user = await User.findById(id);
     if (!user) {
       throw new Error('User not found');
+    }
+
+    // Normalize name field: trim and replace multiple spaces with single space
+    if (userData.name !== undefined) {
+      userData.name = userData.name.trim().replace(/\s+/g, ' ');
+    }
+
+    // Check if user is updating themselves
+    const isSelfUpdate = requestingUserId && parseInt(id) === parseInt(requestingUserId);
+
+    // If self-update, restrict what can be changed
+    if (isSelfUpdate) {
+      // Prevent self-updates from changing roles
+      if (userData.roleIds !== undefined || userData.roleId !== undefined) {
+        throw new Error('You cannot change your own roles. Please contact an administrator.');
+      }
+      
+      // Prevent self-updates from changing isActive status
+      if (userData.isActive !== undefined) {
+        throw new Error('You cannot change your own active status. Please contact an administrator.');
+      }
+      
+      // Only allow profile fields for self-updates
+      const allowedFields = ['name', 'email', 'mobile', 'jobTitle', 'department', 'address', 'region', 'language', 'iamShortId', 'ssoId', 'password'];
+      const restrictedFields = Object.keys(userData).filter(key => !allowedFields.includes(key));
+      
+      if (restrictedFields.length > 0) {
+        throw new Error(`You cannot update the following fields: ${restrictedFields.join(', ')}. Please contact an administrator.`);
+      }
     }
 
     // Map iamShortId to ssoId for backward compatibility
@@ -159,6 +193,7 @@ class UserService {
     }
 
     // Handle role updates (roleIds array or single roleId for backward compatibility)
+    // Only allowed for admin updates (not self-updates)
     if (userData.roleIds !== undefined || userData.roleId !== undefined) {
       const newRoleIds = userData.roleIds || (userData.roleId ? [userData.roleId] : []);
       

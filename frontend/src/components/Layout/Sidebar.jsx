@@ -2,13 +2,15 @@ import React, { useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../hooks/useLanguage';
-import './Sidebar.css';
 
 const Sidebar = () => {
   const location = useLocation();
-  const { logout, hasPermission, permissions } = useAuth();
+  const { logout, hasPermission, permissions, user } = useAuth();
   const { t } = useLanguage();
   const [expandedMenus, setExpandedMenus] = useState({});
+  
+  // Check if user has ADMIN role
+  const isAdmin = user?.roles?.some(role => role.code === 'ADMIN');
 
   const toggleMenu = (menuName) => {
     setExpandedMenus(prev => ({
@@ -24,6 +26,14 @@ const Sidebar = () => {
       name: t('dashboard'),
       path: '/dashboard',
       icon: '📊',
+      iconSvg: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="6" height="6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+          <rect x="11" y="3" width="6" height="6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+          <rect x="3" y="11" width="6" height="6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+          <rect x="11" y="11" width="6" height="6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
       accessObjectName: 'DASHBOARD',
       children: []
     },
@@ -62,6 +72,12 @@ const Sidebar = () => {
       name: t('fieldFix'),
       path: '/field-fix',
       icon: '🔧',
+      iconSvg: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 2L18 6L10 14L6 10L14 2Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+          <path d="M6 10L2 14L6 18L10 14" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
       accessObjectName: 'FIELD_FIX',
       children: [
         { name: t('createNewFieldFix'), path: '/field-fix/create', accessObjectName: 'CREATE_NEW_FIELD_FIX' },
@@ -77,6 +93,19 @@ const Sidebar = () => {
         { name: t('fieldFixLimitedToRC'), path: '/field-fix/limited-to-rc', accessObjectName: 'FIELD_FIX_LIMITED_TO_RC' },
         { name: t('newFieldFixFromQM'), path: '/field-fix/new-from-qm', accessObjectName: 'NEW_FIELD_FIX_FROM_QM' }
       ]
+    },
+    {
+      name: 'Code Generation',
+      path: '/code-generation',
+      icon: '📝',
+      iconSvg: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4H16V16H4V4Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+          <path d="M7 7H13M7 10H13M7 13H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      ),
+      accessObjectName: 'CODE_GENERATION',
+      children: []
     },
     {
       name: t('fieldFixProgress'),
@@ -121,21 +150,12 @@ const Sidebar = () => {
   // Filter menu items based on permissions
   const menuItems = useMemo(() => {
     return allMenuItems.map(item => {
-      // API Registry is always visible (needed to register APIs for RBAC)
+      // API Registry is only visible to admin users
       if (item.accessObjectName === 'MANAGE_ROLES' && item.name === 'API Registry') {
+        if (!isAdmin) {
+          return null; // Hide API Registry for non-admin users
+        }
         return item;
-      }
-      
-      // User Management is always visible and shows all children
-      if (item.accessObjectName === 'USER_MANAGEMENT') {
-        // Filter children based on permissions for User Management
-        const filteredChildren = item.children.length > 0 
-          ? item.children.filter(child => hasPermission(child.accessObjectName, 'read_only'))
-          : [];
-        return {
-          ...item,
-          children: filteredChildren
-        };
       }
       
       // Check if user has permission for parent screen
@@ -162,41 +182,46 @@ const Sidebar = () => {
         children: filteredChildren
       };
     }).filter(item => item !== null);
-  }, [permissions, hasPermission]);
+  }, [permissions, hasPermission, isAdmin]);
 
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <h2>Field Fix</h2>
+    <div className="w-[280px] h-screen bg-white text-text-primary flex flex-col fixed left-0 top-0 overflow-y-auto shadow-[2px_0_8px_rgba(0,0,0,0.05)] z-[1000] border-r border-border max-md:transform max-md:-translate-x-full max-md:transition-transform max-md:duration-300 max-md:ease-in-out max-md:shadow-[4px_0_20px_rgba(0,0,0,0.3)] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-bg-secondary [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
+      <div className="p-6 border-b border-border bg-white">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 flex items-center justify-center bg-transparent">
+            <img src="/favicon.svg" alt="FUSO Logo" className="w-full h-full object-contain" />
+          </div>
+          <h2 className="m-0 text-xl font-semibold text-text-primary tracking-tight">Field Fix Portal</h2>
+        </div>
       </div>
-      <nav className="sidebar-nav">
+      <nav className="flex-1 py-6">
         {menuItems.map((item) => (
-          <div key={item.name} className="menu-item">
+          <div key={item.name} className="mb-2 px-3">
             {item.children.length > 0 ? (
               <>
                 <div
-                  className={`menu-parent ${isActive(item.path) ? 'active' : ''}`}
+                  className={`flex items-center px-5 py-3.5 text-gray-700 no-underline cursor-pointer transition-all duration-200 select-none rounded-lg mx-2 font-medium relative hover:bg-bg-tertiary hover:text-text-primary ${isActive(item.path) ? 'bg-red-100 text-danger font-semibold' : ''}`}
                   onClick={() => toggleMenu(item.name)}
                 >
-                  <span className="menu-icon">{item.icon}</span>
-                  <span className="menu-text">{item.name}</span>
-                  <span className={`menu-arrow ${expandedMenus[item.name] ? 'expanded' : ''}`}>
+                  <span className={`mr-3.5 text-xl flex items-center justify-center w-5 h-5 ${isActive(item.path) ? 'text-danger' : 'text-inherit'}`}>{item.iconSvg || item.icon}</span>
+                  <span className="flex-1 text-[0.95rem] tracking-wide">{item.name}</span>
+                  <span className={`flex items-center justify-center ml-auto transition-all duration-300 opacity-60 ${expandedMenus[item.name] ? 'rotate-180 opacity-100' : ''} hover:opacity-100`}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </span>
                 </div>
                 {expandedMenus[item.name] && item.children.length > 0 && (
-                  <div className="menu-children">
+                  <div className="bg-bg-secondary py-2 mt-1 rounded-lg mx-2 animate-[slideDown_0.3s_ease-out]">
                     {item.children.map((child) => (
                       <Link
                         key={child.path}
                         to={child.path}
-                        className={`menu-child ${isActive(child.path) ? 'active' : ''}`}
+                        className={`block py-2.5 pl-12 pr-6 text-gray-500 no-underline text-sm transition-all duration-300 rounded-lg mx-2 relative hover:bg-bg-tertiary hover:text-text-primary before:content-['•'] before:absolute before:left-7 before:opacity-50 before:transition-all before:duration-300 hover:before:opacity-100 hover:before:text-danger ${isActive(child.path) ? 'bg-red-100 text-danger font-semibold border-l-[3px] border-danger before:opacity-100 before:text-danger' : ''}`}
                       >
                         {child.name}
                       </Link>
@@ -207,20 +232,20 @@ const Sidebar = () => {
             ) : (
               <Link
                 to={item.path}
-                className={`menu-parent ${isActive(item.path) ? 'active' : ''}`}
+                className={`flex items-center px-5 py-3.5 text-gray-700 no-underline cursor-pointer transition-all duration-200 select-none rounded-lg mx-2 font-medium relative hover:bg-bg-tertiary hover:text-text-primary ${isActive(item.path) ? 'bg-red-100 text-danger font-semibold' : ''}`}
               >
-                <span className="menu-icon">{item.icon}</span>
-                <span className="menu-text">{item.name}</span>
+                <span className={`mr-3.5 text-xl flex items-center justify-center w-5 h-5 ${isActive(item.path) ? 'text-danger' : 'text-inherit'}`}>{item.iconSvg || item.icon}</span>
+                <span className="flex-1 text-[0.95rem] tracking-wide">{item.name}</span>
               </Link>
             )}
           </div>
         ))}
       </nav>
-      <div className="sidebar-footer">
-        <button onClick={logout} className="logout-button">
+      {/* <div className="p-6 border-t border-border bg-white">
+        <button onClick={logout} className="w-full px-5 py-3.5 bg-danger text-white border-none rounded-lg cursor-pointer text-[0.95rem] font-semibold transition-all duration-300 tracking-wide hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(220,38,38,0.3)] active:translate-y-0">
           {t('logout')}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

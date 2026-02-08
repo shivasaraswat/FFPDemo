@@ -3,8 +3,6 @@ import { userService } from '../../services/userService';
 import { roleService } from '../../services/roleService';
 import UserTable from '../../components/UserManagement/UserTable';
 import UserForm from '../../components/UserManagement/UserForm';
-import './UserManagement.css';
-import './ManageUsers.css';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -12,14 +10,18 @@ const ManageUsers = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [formKey, setFormKey] = useState(0);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [filters, setFilters] = useState({
     roleId: '',
     search: ''
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
   useEffect(() => {
     loadData();
+    setCurrentPage(1); // Reset to first page when filters change
   }, [filters]);
 
   const loadData = async () => {
@@ -44,8 +46,16 @@ const ManageUsers = () => {
   };
 
   const handleAdd = () => {
+    // Close form first to ensure clean state
+    setShowForm(false);
+    // Explicitly set to null (not undefined)
     setEditingUser(null);
-    setShowForm(true);
+    // Increment form key to force remount with fresh state
+    setFormKey(prev => prev + 1);
+    // Use setTimeout to ensure state is reset before showing form
+    setTimeout(() => {
+      setShowForm(true);
+    }, 10);
   };
 
   const handleEdit = async (user) => {
@@ -127,73 +137,129 @@ const ManageUsers = () => {
   const handleFormCancel = () => {
     setShowForm(false);
     setEditingUser(null);
+    // Reset form key when canceling to ensure clean state next time
+    setFormKey(0);
   };
+
+  const handleClear = () => {
+    setFilters({ roleId: '', search: '' });
+    setCurrentPage(1);
+  };
+
+  // Pagination calculations
+  const totalRecords = users.length;
+  const totalPages = Math.ceil(totalRecords / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const displayedUsers = users.slice(startIndex, endIndex);
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading">Loading users...</div>
+      <div className="p-0 min-h-[calc(100vh-0px)] bg-transparent w-full">
+        <div className="text-center py-8 text-gray-600">Loading users...</div>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
-          <h1>Manage Users</h1>
-          <p className="breadcrumb">User Management / Manage Users</p>
+    <div className="bg-[#f5f6fa] min-h-screen p-6">
+      <div className="bg-white rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">
+            Manage Users
+            <span className="text-gray-400 ml-1.5 font-normal">({totalRecords} Records)</span>
+          </h2>
+          <button 
+            className="flex items-center gap-1.5 px-4 py-2 border border-[#ff3b3b] rounded-lg bg-white text-[#ff3b3b] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-[#fff3f3]"
+            onClick={handleAdd}
+          >
+            <span>+</span>
+            Create New User
+          </button>
         </div>
-        <button 
-          className="add-button-header" 
-          onClick={handleAdd}
-          type="button"
-        >
-          ➕ Add New User
-        </button>
-      </div>
-
-      {message.text && (
-        <div className={`message ${message.type}`}>
-          {message.text}
-        </div>
-      )}
-
-      <div className="page-content">
-        <div className="users-header">
-          <div className="filters-section">
+  
+        {/* Controls */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Search Input */}
+            <div className="relative flex items-center">
+              {/* <svg className="absolute left-3 text-gray-400 pointer-events-none z-10" width="18" height="25" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <path d="M15 15L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg> */}
+              <input
+                type="text"
+                placeholder="Search by name or email"
+                value={filters.search}
+                onChange={e => setFilters({...filters, search: e.target.value})}
+                className="w-60 h-18 px-4 pl-10 border border-gray-300 rounded-lg text-sm bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10 placeholder:text-gray-400"
+              />
+            </div>
+            
+            {/* Role Dropdown */}
             <select
+              className="w-60 h-18 px-4 pr-10 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium cursor-pointer transition-all duration-200 appearance-none bg-[url('data:image/svg+xml,%3Csvg_width=\'12\'_height=\'8\'_viewBox=\'0_0_12_8\'_fill=\'none\'_xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath_d=\'M1_1L6_6L11_1\'_stroke=\'%236b7280\'_stroke-width=\'1.5\'_stroke-linecap=\'round\'_stroke-linejoin=\'round\'/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center] hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10"
               value={filters.roleId}
-              onChange={(e) => setFilters({ ...filters, roleId: e.target.value })}
-              className="filter-select"
+              onChange={e => setFilters({...filters, roleId: e.target.value})}
             >
-              <option value="">All Roles</option>
-              {roles.map(role => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
+              <option value="" className="text-gray-400">All Roles</option>
+              {roles.map(r => (
+                <option key={r.id} value={r.id}>{r.name}</option>
               ))}
             </select>
-
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="search-input"
-            />
+            
+            {/* Clear Button */}
+            <button 
+              className="w-40 h-18 px-4 border border-[#ff3b3b] text-[#ff3b3b] bg-white rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-[#fff3f3]"
+              onClick={handleClear}
+            >
+              Clear Filters
+            </button>
           </div>
         </div>
+  
+        {/* Table */}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <UserTable
+            users={displayedUsers}
+            roles={roles}
+            onEdit={handleEdit}
+            onDeactivate={handleDeactivate}
+            onDelete={handleDelete}
+          />
+        </div>
+  
+        {/* Footer with Results Count and Pagination */}
+        <div className="flex justify-between items-center mt-4">
+          {totalRecords > 0 && (
+            <span className="text-gray-500 text-sm">
+              Showing {startIndex + 1}-{Math.min(endIndex, totalRecords)} results out of {totalRecords}
+            </span>
+          )}
+          {totalRecords === 0 && <div></div>}
+          {totalPages > 1 && (
+            <div className="flex gap-3 items-center">
+              <button
+                className="w-8 h-8 border border-gray-300 bg-white rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+              >
+                ‹
+              </button>
+              <span className="text-sm text-gray-700">{currentPage} of {totalPages}</span>
+              <button
+                className="w-8 h-8 border border-gray-300 bg-white rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => p + 1)}
+              >
+                ›
+              </button>
+            </div>
+          )}
+        </div>
 
-        <UserTable
-          users={users}
-          roles={roles}
-          onEdit={handleEdit}
-          onActivate={() => {}}
-          onDeactivate={handleDeactivate}
-          onDelete={handleDelete}
-        />
-
+        {/* UserForm Modal */}
         {showForm && (
           <UserForm
             user={editingUser}
@@ -205,6 +271,7 @@ const ManageUsers = () => {
       </div>
     </div>
   );
+  
 };
 
 export default ManageUsers;

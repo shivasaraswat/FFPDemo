@@ -1,0 +1,134 @@
+.profile-dropdown-container {
+  position: relative;
+}
+
+.user-profile-trigger {
+  cursor: pointer;
+}
+
+.user-profile-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-info-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-name-header {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1f2937;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.user-role-header {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.user-avatar-red {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dc2626;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-user-info {
+  padding: 1rem 1.25rem;
+}
+
+.dropdown-user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.dropdown-user-email {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+.dropdown-menu-items {
+  padding: 0.5rem 0;
+}
+
+.dropdown-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #374151;
+}
+
+.dropdown-menu-item:hover {
+  background: #f9fafb;
+}
+
+.dropdown-menu-item svg {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.dropdown-menu-item span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.logout-item {
+  color: #dc2626;
+}
+
+.logout-item svg {
+  color: #dc2626;
+}
+
+.logout-item:hover {
+  background: #fee2e2;
+}
+

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './AddRoleModal.css';
 
 const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
   const [roleName, setRoleName] = useState('');
@@ -69,17 +68,17 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Add New Role</h2>
-          <button className="modal-close" onClick={handleClose}>&times;</button>
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000]" onClick={handleClose}>
+      <div className="bg-white rounded-lg w-[90%] max-w-[500px] max-h-[90vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-6 border-b border-gray-300">
+          <h2 className="m-0 text-2xl">Add New Role</h2>
+          <button className="bg-transparent border-none text-3xl cursor-pointer text-gray-600 leading-none p-0 w-8 h-8 flex items-center justify-center hover:text-black transition-colors" onClick={handleClose}>&times;</button>
         </div>
         
-        <form onSubmit={handleSubmit} className="modal-form">
-          <div className="form-group">
-            <label htmlFor="roleName">
-              Role Name <span className="required">*</span>
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="mb-6">
+            <label htmlFor="roleName" className="block mb-2 font-medium text-gray-800">
+              Role Name <span className="text-red-600 font-bold">*</span>
             </label>
             <input
               type="text"
@@ -87,17 +86,17 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
               value={roleName}
               onChange={handleRoleNameChange}
               placeholder="Enter role name (e.g., Administrator)"
-              className={errors.roleName ? 'error' : ''}
+              className={`w-full py-3 px-3 border rounded-md text-base box-border focus:outline-none focus:ring-2 focus:ring-blue-500/10 ${errors.roleName ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed`}
               disabled={loading}
             />
             {errors.roleName && (
-              <span className="error-message">{errors.roleName}</span>
+              <span className="block text-red-600 text-sm mt-1">{errors.roleName}</span>
             )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="roleCode">
-              Role Code <span className="required">*</span>
+          <div className="mb-6">
+            <label htmlFor="roleCode" className="block mb-2 font-medium text-gray-800">
+              Role Code <span className="text-red-600 font-bold">*</span>
             </label>
             <input
               type="text"
@@ -105,21 +104,21 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
               value={roleCode}
               onChange={handleRoleCodeChange}
               placeholder="Enter role code (e.g., ADMIN)"
-              className={errors.roleCode ? 'error' : ''}
+              className={`w-full py-3 px-3 border rounded-md text-base box-border focus:outline-none focus:ring-2 focus:ring-blue-500/10 ${errors.roleCode ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed`}
               disabled={loading}
             />
             {errors.roleCode && (
-              <span className="error-message">{errors.roleCode}</span>
+              <span className="block text-red-600 text-sm mt-1">{errors.roleCode}</span>
             )}
-            <small className="form-hint">
+            <small className="block text-gray-600 text-sm mt-1">
               Use uppercase letters, numbers, and underscores only
             </small>
           </div>
 
-          <div className="modal-actions">
+          <div className="flex justify-end gap-4 mt-8">
             <button
               type="button"
-              className="btn-cancel"
+              className="px-6 py-3 border-none rounded-md text-base cursor-pointer font-medium bg-gray-600 text-white hover:bg-gray-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={handleClose}
               disabled={loading}
             >
@@ -127,7 +126,7 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
             </button>
             <button
               type="submit"
-              className="btn-save"
+              className="px-6 py-3 border-none rounded-md text-base cursor-pointer font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? 'Adding...' : 'Add Role'}

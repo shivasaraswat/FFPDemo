@@ -54,6 +54,12 @@ import ApiRegistryManagement from './pages/UserManagement/ApiRegistryManagement'
 // Report Gallery
 import ReportGallery from './pages/ReportGallery';
 
+// Code Generation
+import CFTMasterRecords from './pages/CodeGeneration/CFTMasterRecords';
+
+// Profile
+import ProfileInformation from './pages/Profile/ProfileInformation';
+
 import './App.css';
 
 const AppRoutes = () => {
@@ -130,6 +136,12 @@ const AppRoutes = () => {
       
       {/* Report Gallery */}
       <Route path="/report-gallery" element={<ProtectedRoute><Layout><ReportGallery /></Layout></ProtectedRoute>} />
+      
+      {/* Code Generation Routes */}
+      <Route path="/code-generation" element={<ProtectedRoute><Layout><CFTMasterRecords /></Layout></ProtectedRoute>} />
+      
+      {/* Profile Routes */}
+      <Route path="/profile" element={<ProtectedRoute><Layout><ProfileInformation /></Layout></ProtectedRoute>} />
       
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
     </Routes>

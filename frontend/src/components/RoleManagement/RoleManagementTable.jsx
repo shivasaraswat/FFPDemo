@@ -5,7 +5,6 @@ import { accessObjectService } from '../../services/accessObjectService';
 import AccessObjectRow from './AccessObjectRow';
 import RoleHeader from './RoleHeader';
 import AddRoleModal from './AddRoleModal';
-import './RoleManagementTable.css';
 
 const RoleManagementTable = () => {
   const [roles, setRoles] = useState([]);
@@ -142,32 +141,39 @@ const RoleManagementTable = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="text-center py-12 px-8 text-lg text-text-secondary font-medium">
+        <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-4 mr-2"></div>
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="role-management-container">
-      <div className="role-management-header">
-        <div className="breadcrumb">Home / Role Management</div>
-        <h1>Role Management</h1>
-        <div className="header-actions">
-          <button className="add-role-button" onClick={handleAddRole}>
-            + Add Role
-          </button>
+    <div className="p-0 max-w-full overflow-x-auto">
+      <div className="mb-8 px-2">
+        <div className="text-text-secondary text-sm mb-3 flex items-center gap-2 before:content-['›'] before:text-gray-400 before:mr-1">Home / Role Management</div>
+        <div className="flex justify-between items-center">
+          <h1 className="text-text-primary mb-4 text-3xl font-semibold tracking-tight">Role Management</h1>
+          <div className="flex justify-end gap-4">
+            <button className="bg-danger text-white border-none px-6 py-3 rounded-lg cursor-pointer text-sm font-semibold transition-all duration-300 shadow-sm tracking-wide hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onClick={handleAddRole}>
+              + Add Role
+            </button>
+          </div>
         </div>
       </div>
 
       {message.text && (
-        <div className={`message ${message.type}`}>
+        <div className={`p-4 px-5 rounded-xl mb-6 font-medium animate-[slideDown_0.3s_ease-out] ${message.type === 'error' ? 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-300' : 'bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-2 border-green-300'}`}>
           {message.text}
         </div>
       )}
 
-      <div className="table-wrapper">
-        <table className="role-management-table">
-          <thead>
+      <div className="overflow-x-auto border border-border rounded-lg bg-white shadow-sm">
+        <table className="w-full border-collapse min-w-[800px]">
+          <thead className="bg-bg-secondary sticky top-0 z-10">
             <tr>
-              <th className="access-object-header">Access Objects</th>
+              <th className="px-4 py-4 text-left font-semibold text-gray-700 border-r border-border border-b border-border min-w-[250px]">Access Objects</th>
               {roles.map(role => (
                 <RoleHeader key={role.id} role={role} />
               ))}

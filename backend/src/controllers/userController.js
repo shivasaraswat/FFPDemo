@@ -49,7 +49,9 @@ class UserController {
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const user = await userService.update(req.params.id, req.body);
+      // Pass the requesting user ID to service for self-update validation
+      const requestingUserId = req.user ? req.user.id : null;
+      const user = await userService.update(req.params.id, req.body, requestingUserId);
       const { passwordHash, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {

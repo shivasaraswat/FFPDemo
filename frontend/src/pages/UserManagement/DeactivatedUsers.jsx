@@ -3,8 +3,6 @@ import { userService } from '../../services/userService';
 import { roleService } from '../../services/roleService';
 import UserTable from '../../components/UserManagement/UserTable';
 import UserForm from '../../components/UserManagement/UserForm';
-import './UserManagement.css';
-import './DeactivatedUsers.css';
 
 const DeactivatedUsers = () => {
   const [users, setUsers] = useState([]);
@@ -110,34 +108,34 @@ const DeactivatedUsers = () => {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading">Loading deactivated users...</div>
+      <div className="p-0 min-h-[calc(100vh-0px)] bg-transparent w-full">
+        <div className="text-center py-8 text-gray-600">Loading deactivated users...</div>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
+    <div className="p-0 min-h-[calc(100vh-0px)] bg-transparent w-full">
+      <div className="mb-8 px-2">
         <div>
-          <h1>Deactivated Users</h1>
-          <p className="breadcrumb">User Management / Deactivated Users</p>
+          <h1 className="text-text-primary mb-3 text-3xl font-semibold tracking-tight">Deactivated Users</h1>
+          <p className="text-text-secondary text-sm m-0 flex items-center gap-2 before:content-['›'] before:text-gray-400 before:mr-1">User Management / Deactivated Users</p>
         </div>
       </div>
 
       {message.text && (
-        <div className={`message ${message.type}`}>
+        <div className={`p-4 rounded-lg mb-4 ${message.type === 'error' ? 'bg-red-100 text-red-800 border-2 border-red-300' : 'bg-green-100 text-green-800 border-2 border-green-300'}`}>
           {message.text}
         </div>
       )}
 
-      <div className="page-content">
-        <div className="users-header">
-          <div className="filters-section">
+      <div className="max-w-[1400px] mx-auto w-full">
+        <div className="mb-6">
+          <div className="flex gap-4 flex-wrap">
             <select
               value={filters.roleId}
               onChange={(e) => setFilters({ ...filters, roleId: e.target.value })}
-              className="filter-select"
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium cursor-pointer transition-all duration-200 min-w-[150px] appearance-none bg-[url('data:image/svg+xml,%3Csvg_width=\'12\'_height=\'8\'_viewBox=\'0_0_12_8\'_fill=\'none\'_xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath_d=\'M1_1L6_6L11_1\'_stroke=\'%236b7280\'_stroke-width=\'1.5\'_stroke-linecap=\'round\'_stroke-linejoin=\'round\'/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center] pr-10 hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10"
             >
               <option value="">All Roles</option>
               {roles.map(role => (
@@ -152,7 +150,7 @@ const DeactivatedUsers = () => {
               placeholder="Search by name or email..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="search-input"
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10"
             />
           </div>
         </div>

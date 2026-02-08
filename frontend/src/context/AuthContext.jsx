@@ -152,8 +152,14 @@ export const AuthProvider = ({ children }) => {
     return checkPermission(permissions, moduleKey, requiredLevel);
   };
 
+  const updateUser = (updatedUserData) => {
+    setUser(updatedUserData);
+    localStorage.setItem('user', JSON.stringify(updatedUserData));
+  };
+
   const value = {
     user,
+    setUser: updateUser,
     permissions,
     selectedRole,
     setSelectedRole: handleRoleChange,

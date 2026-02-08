@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
-import './UserForm.css';
 
 const UserForm = ({ user, roles, onSubmit, onCancel }) => {
   const { t } = useLanguage();
@@ -27,24 +26,43 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     { value: 'Other', label: 'Other' }
   ];
 
-  const [formData, setFormData] = useState({
+  // Initialize with empty form data
+  const getInitialFormData = () => ({
     name: '',
     email: '',
     password: '',
-    roleIds: [], // For RC/GD roles (multi-select)
-    nonRcGdRoleId: '', // For other roles (single select)
-    mobile: '',
+    roleIds: [],
+    nonRcGdRoleId: '',
     iamShortId: '',
     address: '',
     region: '',
-    language: 'en' // Default language
+    language: 'en'
   });
+
+  const [formData, setFormData] = useState(() => getInitialFormData());
   const [errors, setErrors] = useState({});
   const [showPasswordField, setShowPasswordField] = useState(false);
   const isEditMode = !!user;
 
   useEffect(() => {
-    if (user) {
+    // Always reset form first, then populate if editing
+    if (user === null || user === undefined || !user.id) {
+      // Reset form for new user - ensure all fields are completely empty
+      // Use a fresh object to avoid any reference issues
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        roleIds: [],
+        nonRcGdRoleId: '',
+        iamShortId: '',
+        address: '',
+        region: '',
+        language: 'en'
+      });
+      setShowPasswordField(true); // Show password field for new users
+      setErrors({}); // Clear errors
+    } else if (user && user.id) {
       // Extract roles from user object
       // Handle both array format and single role format
       let userRoles = [];
@@ -70,27 +88,13 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         password: '', // Don't populate password in edit mode
         roleIds: userRcGdRoleIds,
         nonRcGdRoleId: userOtherRole ? userOtherRole.id : '',
-        mobile: user.mobile || '',
         iamShortId: user.iamShortId || user.ssoId || '',
         address: user.address || '',
         region: user.region || '',
         language: user.language || 'en'
       });
-    } else {
-      // Reset form for new user
-      setFormData({
-        name: '',
-        email: '',
-        password: '',
-        roleIds: [],
-        nonRcGdRoleId: '',
-        mobile: '',
-        iamShortId: '',
-        address: '',
-        region: '',
-        language: 'en'
-      });
-      setShowPasswordField(true); // Show password field for new users
+      setShowPasswordField(false); // Hide password field initially in edit mode
+      setErrors({}); // Clear errors
     }
   }, [user]);
 
@@ -159,7 +163,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       const isRegionRequired = submitData.roleIds.length > 0;
       
       Object.keys(submitData).forEach(key => {
-        if (submitData[key] === '' && ['mobile', 'iamShortId', 'address'].includes(key)) {
+        if (submitData[key] === '' && ['iamShortId', 'address'].includes(key)) {
           delete submitData[key];
         }
         // Remove region only if it's empty and not required
@@ -244,52 +248,54 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content user-form-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{isEditMode ? t('editUser') : t('addNewUser')}</h2>
-          <button className="close-button" onClick={onCancel}>×</button>
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-4" onClick={onCancel}>
+      <div className="bg-white rounded-lg w-full max-w-[800px] max-h-[90vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-6 border-b border-gray-300">
+          <h2 className="m-0 text-gray-800 text-2xl">{isEditMode ? t('editUser') : t('addNewUser')}</h2>
+          <button className="bg-transparent border-none text-3xl text-gray-600 cursor-pointer leading-none p-0 w-8 h-8 flex items-center justify-center rounded transition-colors hover:bg-gray-100" onClick={onCancel}>×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="user-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="name">{t('name')} *</label>
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex flex-col">
+              <label htmlFor="name" className="mb-2 text-gray-800 font-medium text-sm">{t('name')} *</label>
               <input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className={errors.name ? 'error' : ''}
+                className={`py-3.5 px-4 border-2 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${errors.name ? 'border-danger bg-red-50' : 'border-gray-200'}`}
                 placeholder={t('name')}
               />
-              {errors.name && <span className="error-message">{errors.name}</span>}
+              {errors.name && <span className="mt-1 text-sm text-danger">{errors.name}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="email">{t('email')} *</label>
+            <div className="flex flex-col">
+              <label htmlFor="email" className="mb-2 text-gray-800 font-medium text-sm">{t('email')} *</label>
               <input
+                key={`email-${user?.id || 'new'}`}
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                className={errors.email ? 'error' : ''}
+                className={`py-3.5 px-4 border-2 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${errors.email ? 'border-danger bg-red-50' : 'border-gray-200'}`}
                 placeholder={t('email')}
+                autoComplete="off"
               />
-              {errors.email && <span className="error-message">{errors.email}</span>}
+              {errors.email && <span className="mt-1 text-sm text-danger">{errors.email}</span>}
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('roles')} *</label>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex flex-col">
+              <label className="mb-2 text-gray-800 font-medium text-sm">{t('roles')} *</label>
               {otherRoles.length > 0 && (
-                <div className="role-selection-group">
-                  <label className="role-group-label">{t('otherRoles')}:</label>
+                <div className="mb-3">
+                  <label className="block mb-2 text-sm font-medium text-gray-700">{t('otherRoles')}:</label>
                   <select
                     value={formData.nonRcGdRoleId || ''}
                     onChange={(e) => handleChange('nonRcGdRoleId', e.target.value ? parseInt(e.target.value) : '')}
-                    className={errors.roles ? 'error' : ''}
+                    className={`w-full py-3.5 px-4 border-2 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-bg-tertiary ${errors.roles ? 'border-danger bg-red-50' : 'border-gray-200'}`}
                     disabled={formData.roleIds.length > 0}
                   >
                     <option value="">Select a role</option>
@@ -300,63 +306,65 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                     ))}
                   </select>
                   {formData.roleIds.length > 0 && (
-                    <small className="field-hint" style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
+                    <small className="text-text-secondary mt-1 block text-sm">
                       Clear RC/GD roles to select other roles
                     </small>
                   )}
                 </div>
               )}
               {rcGdRoles.length > 0 && (
-                <div className="role-selection-group">
-                  <label className="role-group-label">{t('rcGdRoles')}:</label>
-                  <div className="checkbox-group">
+                <div className="mb-3">
+                  <label className="block mb-2 text-sm font-medium text-gray-700">{t('rcGdRoles')}:</label>
+                  <div className="flex flex-col gap-2">
                     {rcGdRoles.map(role => (
-                      <label key={role.id} className="checkbox-label" style={{ opacity: formData.nonRcGdRoleId ? 0.5 : 1 }}>
+                      <label key={role.id} className={`flex items-center gap-2 cursor-pointer ${formData.nonRcGdRoleId ? 'opacity-50' : ''}`}>
                         <input
                           type="checkbox"
                           checked={formData.roleIds.includes(role.id)}
                           onChange={(e) => handleRoleCheckboxChange(role.id, e.target.checked)}
                           disabled={!!formData.nonRcGdRoleId}
+                          className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                         />
-                        <span>{role.name}</span>
+                        <span className="text-sm text-gray-700">{role.name}</span>
                       </label>
                     ))}
                   </div>
                   {formData.nonRcGdRoleId && (
-                    <small className="field-hint" style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
+                    <small className="text-text-secondary mt-1 block text-sm">
                       Clear other role selection to select RC/GD roles
                     </small>
                   )}
                 </div>
               )}
-              {errors.roles && <span className="error-message">{errors.roles}</span>}
+              {errors.roles && <span className="mt-1 text-sm text-danger">{errors.roles}</span>}
             </div>
-
           </div>
 
           {(!isEditMode || showPasswordField) && (
-            <div className="form-group">
-              <label htmlFor="password">
+            <div className="flex flex-col mb-4">
+              <label htmlFor="password" className="mb-2 text-gray-800 font-medium text-sm">
                 {isEditMode ? t('newPassword') : `${t('password')} *`}
-                {isEditMode && <span className="field-hint">({t('leaveBlankToKeepCurrent')})</span>}
+                {isEditMode && <span className="font-normal text-gray-600 ml-2 text-xs">({t('leaveBlankToKeepCurrent')})</span>}
               </label>
               <input
+                key={`password-${user?.id || 'new'}`}
                 id="password"
                 type="password"
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
-                className={errors.password ? 'error' : ''}
+                className={`py-3.5 px-4 border-2 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${errors.password ? 'border-danger bg-red-50' : 'border-gray-200'}`}
                 placeholder={isEditMode ? t('enterNewPasswordOptional') : t('passwordMinLength')}
+                autoComplete="new-password"
               />
-              {errors.password && <span className="error-message">{errors.password}</span>}
+              {errors.password && <span className="mt-1 text-sm text-danger">{errors.password}</span>}
             </div>
           )}
 
           {isEditMode && !showPasswordField && (
-            <div className="form-group">
+            <div className="flex flex-col mb-4">
               <button
                 type="button"
-                className="change-password-button"
+                className="self-start px-4 py-2 text-sm text-primary border border-primary rounded-lg bg-transparent hover:bg-primary/10 transition-colors"
                 onClick={() => setShowPasswordField(true)}
               >
                 {t('changePassword')}
@@ -364,59 +372,53 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             </div>
           )}
 
-          <div className="form-section-divider">
-            <span>{t('optionalFields')}</span>
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">{t('optionalFields')}</span>
+            </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="language">{t('language')}</label>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex flex-col">
+              <label htmlFor="language" className="mb-2 text-gray-800 font-medium text-sm">{t('language')}</label>
               <select
                 id="language"
                 value={formData.language}
                 onChange={(e) => handleChange('language', e.target.value)}
+                className="py-3.5 px-4 border-2 border-gray-200 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
               >
                 <option value="en">English</option>
                 <option value="ja">日本語 (Japanese)</option>
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="mobile">{t('mobile')}</label>
-              <input
-                id="mobile"
-                type="tel"
-                value={formData.mobile}
-                onChange={(e) => handleChange('mobile', e.target.value)}
-                placeholder={t('enterMobileNumber')}
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="iamShortId">{t('iamShortId')}</label>
+            <div className="flex flex-col">
+              <label htmlFor="iamShortId" className="mb-2 text-gray-800 font-medium text-sm">{t('iamShortId')}</label>
               <input
                 id="iamShortId"
                 type="text"
                 value={formData.iamShortId}
                 onChange={(e) => handleChange('iamShortId', e.target.value)}
+                className="py-3.5 px-4 border-2 border-gray-200 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                 placeholder={t('enterIamShortId')}
               />
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="region">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex flex-col">
+              <label htmlFor="region" className="mb-2 text-gray-800 font-medium text-sm">
                 {t('region')}
-                {formData.roleIds.length > 0 && <span className="required-asterisk"> *</span>}
+                {formData.roleIds.length > 0 && <span className="text-danger font-bold"> *</span>}
               </label>
               <select
                 id="region"
                 value={formData.region}
                 onChange={(e) => handleChange('region', e.target.value)}
-                className={errors.region ? 'error' : ''}
+                className={`py-3.5 px-4 border-2 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${errors.region ? 'border-danger bg-red-50' : 'border-gray-200'}`}
               >
                 {regionOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -424,26 +426,27 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                   </option>
                 ))}
               </select>
-              {errors.region && <span className="error-message">{errors.region}</span>}
+              {errors.region && <span className="mt-1 text-sm text-danger">{errors.region}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="address">{t('address')}</label>
+            <div className="flex flex-col">
+              <label htmlFor="address" className="mb-2 text-gray-800 font-medium text-sm">{t('address')}</label>
               <textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
+                className="py-3.5 px-4 border-2 border-gray-200 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                 placeholder={t('enterAddress')}
                 rows="3"
               />
             </div>
           </div>
 
-          <div className="form-actions">
-            <button type="button" className="cancel-button" onClick={onCancel}>
+          <div className="flex justify-end gap-4 mt-6">
+            <button type="button" className="px-6 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-700 font-semibold cursor-pointer transition-all duration-300 hover:bg-gray-50 hover:border-gray-400" onClick={onCancel}>
               {t('cancel')}
             </button>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="px-6 py-2.5 border-none rounded-lg bg-danger text-white font-semibold cursor-pointer transition-all duration-300 hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg">
               {isEditMode ? t('updateUser') : t('createUser')}
             </button>
           </div>

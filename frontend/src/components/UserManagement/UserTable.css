@@ -1,82 +1,100 @@
-.table-wrapper {
-  overflow-x: auto;
-  background: white;
+.table-container {
+  background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
 }
 
-.user-table {
+.cft-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  background: #ffffff;
 }
 
-.user-table thead {
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
+.cft-table thead {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.user-table th {
+.cft-table th {
   padding: 1rem;
   text-align: left;
-  font-weight: 600;
-  color: #495057;
-  text-transform: uppercase;
   font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
+  white-space: nowrap;
 }
 
-.user-table td {
+.sort-icon {
+  margin-left: 0.5rem;
+  color: #9ca3af;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.cft-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.cft-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.cft-table tbody tr.inactive-row {
+  opacity: 0.7;
+}
+
+.cft-table tbody tr.inactive-row:hover {
+  background: #fef3c7;
+  opacity: 1;
+}
+
+.cft-table td {
   padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
-  color: #333;
-}
-
-.user-table tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
-.user-table tbody tr.inactive-row {
-  opacity: 0.6;
-  background-color: #fff3cd;
-}
-
-.user-table tbody tr.inactive-row:hover {
-  background-color: #ffeaa7;
+  font-size: 0.875rem;
+  color: #374151;
 }
 
 .name-cell {
   font-weight: 500;
-  color: #333;
+  color: #1f2937;
 }
 
 .email-cell {
-  color: #666;
+  color: #6b7280;
 }
 
 .language-cell {
   text-transform: uppercase;
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
-.status-active {
-  background-color: #d4edda;
-  color: #155724;
+.status-badge.status-active {
+  background: #d1fae5;
+  color: #065f46;
 }
 
-.status-inactive {
-  background-color: #f8d7da;
-  color: #721c24;
+.status-badge.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .action-buttons {
@@ -85,47 +103,78 @@
   align-items: center;
 }
 
-.action-buttons button {
-  background: none;
+.action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #dc2626;
+  padding: 0;
 }
 
-.action-buttons button:hover {
-  background-color: #f0f0f0;
+.action-btn:hover {
+  background: #fee2e2;
 }
 
-.edit-button:hover {
-  background-color: #e3f2fd;
+.action-btn:active {
+  transform: scale(0.95);
 }
 
-.activate-button:hover {
-  background-color: #e8f5e9;
+.edit-btn {
+  color: #dc2626;
 }
 
-.deactivate-button:hover {
-  background-color: #fff3e0;
+.edit-btn:hover {
+  background: #fee2e2;
 }
 
-.delete-button:hover {
-  background-color: #ffebee;
+.activate-btn {
+  color: #059669;
+}
+
+.activate-btn:hover {
+  background: #d1fae5;
+}
+
+.deactivate-btn {
+  color: #dc2626;
+}
+
+.deactivate-btn:hover {
+  background: #fee2e2;
+}
+
+.delete-btn {
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
 }
 
 .no-data-message {
   text-align: center;
   padding: 3rem;
-  color: #666;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .no-data-message p {
   margin: 0;
   font-size: 1rem;
+  font-weight: 500;
 }
 
-
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+  }
+}

@@ -27,13 +27,9 @@
 .role-management-header h1 {
   color: #1f2937;
   margin-bottom: 1rem;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.3px;
 }
 
 .header-actions {
@@ -43,22 +39,23 @@
 }
 
 .add-role-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #dc2626;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   letter-spacing: 0.3px;
 }
 
 .add-role-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
 }
 
 .add-role-button:active {
@@ -99,10 +96,9 @@
 .table-wrapper {
   overflow-x: auto;
   border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .role-management-table {
@@ -112,7 +108,7 @@
 }
 
 .role-management-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f9fafb;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -122,8 +118,9 @@
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: white;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  color: #374151;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
   min-width: 250px;
 }
 
@@ -131,9 +128,9 @@
   padding: 1rem;
   text-align: center;
   font-weight: 600;
-  color: white;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
 }
 
 .role-management-table th:last-child {
@@ -143,8 +140,9 @@
 .role-management-table td {
   padding: 0.75rem;
   text-align: center;
-  border-bottom: 1px solid #eee;
-  border-right: 1px solid #eee;
+  border-bottom: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+  background: #ffffff;
 }
 
 .role-management-table td:last-child {
