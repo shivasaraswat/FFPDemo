@@ -56,3 +56,4 @@ SELECT COUNT(*) as total_apis FROM api_registry;
 SELECT method, path, moduleKey FROM api_registry ORDER BY method, path;
 
 
+

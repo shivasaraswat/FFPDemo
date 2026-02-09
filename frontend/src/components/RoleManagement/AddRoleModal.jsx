@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../pages/Common.css';
 
 const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
   const [roleName, setRoleName] = useState('');
@@ -118,7 +119,7 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
           <div className="flex justify-end gap-4 mt-8">
             <button
               type="button"
-              className="px-6 py-3 border-none rounded-md text-base cursor-pointer font-medium bg-gray-600 text-white hover:bg-gray-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 border-common rounded-lg font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={handleClose}
               disabled={loading}
             >
@@ -126,7 +127,7 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
             </button>
             <button
               type="submit"
-              className="px-6 py-3 border-none rounded-md text-base cursor-pointer font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 border-none rounded-lg bg-danger text-white font-semibold cursor-pointer transition-all duration-300 hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? 'Adding...' : 'Add Role'}

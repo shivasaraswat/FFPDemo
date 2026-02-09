@@ -23,3 +23,4 @@ const ProtectedRoute = ({ children, requiredPermission, requiredLevel = 'read_on
 export default ProtectedRoute;
 
 
+

@@ -26,7 +26,7 @@ const UserTable = ({ users, roles, onEdit, onActivate, onDeactivate, onDelete })
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm mb-6 max-md:overflow-x-auto">
       <table className="w-full border-collapse bg-white">
-        <thead className="bg-bg-secondary border-b border-border">
+        <thead className="bg-bg-secondary border-b border-border sticky top-0 z-10">
           <tr>
             <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">
               Name
@@ -48,7 +48,7 @@ const UserTable = ({ users, roles, onEdit, onActivate, onDeactivate, onDelete })
         </thead>
         <tbody>
           {users.map(user => (
-            <tr key={user.id} className={`border-b border-gray-100 transition-colors duration-200 hover:bg-bg-secondary ${!user.isActive ? 'opacity-70 hover:opacity-100 hover:bg-yellow-50' : ''}`}>
+            <tr key={user.id} className={`border-b border-gray-100 transition-colors duration-200 hover:bg-bg-secondary ${!user.isActive ? 'opacity-70 hover:opacity-100' : ''}`}>
               <td className="px-4 py-4 text-sm font-medium text-text-primary">{user.name}</td>
               <td className="px-4 py-4 text-sm text-gray-500">{user.email}</td>
               <td className="px-4 py-4 text-sm text-gray-700">{getRoleName(user.roleId)}</td>

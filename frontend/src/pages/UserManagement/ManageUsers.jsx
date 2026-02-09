@@ -3,6 +3,7 @@ import { userService } from '../../services/userService';
 import { roleService } from '../../services/roleService';
 import UserTable from '../../components/UserManagement/UserTable';
 import UserForm from '../../components/UserManagement/UserForm';
+import '../Common.css';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -162,7 +163,18 @@ const ManageUsers = () => {
   }
 
   return (
-    <div className="bg-[#f5f6fa] min-h-screen p-6">
+    <div className="">
+      <style>{`
+        .user-table-container::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+        .user-table-container {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+      `}</style>
       <div className="bg-white rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
@@ -171,7 +183,11 @@ const ManageUsers = () => {
             <span className="text-gray-400 ml-1.5 font-normal">({totalRecords} Records)</span>
           </h2>
           <button 
-            className="flex items-center gap-1.5 px-4 py-2 border border-[#ff3b3b] rounded-lg bg-white text-[#ff3b3b] text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-[#fff3f3]"
+            className="flex items-center gap-1.5 px-4 py-2
+             border border-[var(--Strokes-Primary,#D80C0C)]
+             rounded-lg bg-white
+             text-[var(--Strokes-Primary,#D80C0C)]
+             shadow-[0px_1px_2px_0px_#0000000D] border-common hover:bg-[#fff3f3]"
             onClick={handleAdd}
           >
             <span>+</span>
@@ -211,16 +227,27 @@ const ManageUsers = () => {
             
             {/* Clear Button */}
             <button 
-              className="w-40 h-18 px-4 border border-[#ff3b3b] text-[#ff3b3b] bg-white rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-[#fff3f3]"
+              className="w-40 h-18 px-4 border border-[#ff3b3b] text-[#ff3b3b] bg-white rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-[#fff3f3] border-common"
               onClick={handleClear}
             >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
               Clear Filters
             </button>
           </div>
         </div>
   
         {/* Table */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div 
+          className="border border-gray-200 rounded-lg overflow-hidden user-table-container" 
+          style={{ 
+            height: 'calc(100vh - 370px)', 
+            overflowY: 'auto',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
           <UserTable
             users={displayedUsers}
             roles={roles}
@@ -234,27 +261,32 @@ const ManageUsers = () => {
         <div className="flex justify-between items-center mt-4">
           {totalRecords > 0 && (
             <span className="text-gray-500 text-sm">
-              Showing {startIndex + 1}-{Math.min(endIndex, totalRecords)} results out of {totalRecords}
+              Showing {Math.min(endIndex, totalRecords)} results out of {totalRecords}
             </span>
           )}
           {totalRecords === 0 && <div></div>}
-          {totalPages > 1 && (
-            <div className="flex gap-3 items-center">
-              <button
-                className="w-8 h-8 border border-gray-300 bg-white rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => p - 1)}
-              >
-                ‹
+          {totalRecords > 0 && (
+            <div className="flex gap-2 items-center">
+              <button className="w-8 h-8 border border-gray-300 bg-white rounded-md text-sm font-medium text-gray-700 flex items-center justify-center" style={{ border: '0.8px solid #D1D5DC' }}>
+                {currentPage}
               </button>
-              <span className="text-sm text-gray-700">{currentPage} of {totalPages}</span>
-              <button
-                className="w-8 h-8 border border-gray-300 bg-white rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(p => p + 1)}
-              >
-                ›
-              </button>
+              <span className="text-sm text-gray-700">of {totalPages}</span>
+              <div className="flex border border-gray-300 rounded-md overflow-hidden">
+                <button
+                  className="w-8 h-8 bg-white border-r border-gray-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white text-sm font-medium flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                >
+                  ‹
+                </button>
+                <button
+                  className="w-8 h-8 bg-gray-100 cursor-pointer text-sm rounded-none font-medium flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
+                  ›
+                </button>
+              </div>
             </div>
           )}
         </div>

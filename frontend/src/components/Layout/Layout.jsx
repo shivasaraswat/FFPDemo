@@ -25,9 +25,9 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       <Sidebar />
-      <main className="flex-1 ml-[280px] min-h-screen bg-bg-secondary flex flex-col transition-all duration-300 ease-in-out max-md:ml-0">
+      <main className="flex-1 ml-[280px] bg-bg-secondary flex flex-col transition-all duration-300 ease-in-out max-md:ml-0">
         <header className="bg-white px-8 py-4 border-b border-border flex justify-between items-center gap-6 shadow-sm sticky top-0 z-[100]">
           <div className="flex items-center gap-4">
             <LanguageSwitcher />

@@ -443,7 +443,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
           </div>
 
           <div className="flex justify-end gap-4 mt-6">
-            <button type="button" className="px-6 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-700 font-semibold cursor-pointer transition-all duration-300 hover:bg-gray-50 hover:border-gray-400" onClick={onCancel}>
+            <button type="button" className="px-6 py-2.5 border-common rounded-lg font-semibold" onClick={onCancel}>
               {t('cancel')}
             </button>
             <button type="submit" className="px-6 py-2.5 border-none rounded-lg bg-danger text-white font-semibold cursor-pointer transition-all duration-300 hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg">

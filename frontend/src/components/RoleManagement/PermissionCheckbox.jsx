@@ -1,15 +1,30 @@
 import React from 'react';
 
-const PermissionCheckbox = ({ checked, onChange }) => {
+const PermissionCheckbox = ({ checked, onChange, label }) => {
   return (
-    <label className="relative inline-flex items-center cursor-pointer">
+    <label className="relative inline-flex items-center cursor-pointer group">
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         className="sr-only peer"
       />
-      <span className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></span>
+      <div className="relative">
+        <div className={`w-10 h-5 rounded-full transition-all duration-200 ease-in-out ${
+          checked 
+            ? 'bg-[#ff3b3b] shadow-inner' 
+            : 'bg-gray-300'
+        } group-hover:shadow-md`}>
+          <div className={`absolute top-[2px] left-[2px] w-4 h-4 bg-white rounded-full shadow-md transition-all duration-200 ease-in-out transform ${
+            checked 
+              ? 'translate-x-5' 
+              : 'translate-x-0'
+          } group-hover:shadow-lg`}></div>
+        </div>
+      </div>
+      {label && (
+        <span className="ml-2 text-xs text-gray-600 font-medium">{label}</span>
+      )}
     </label>
   );
 };

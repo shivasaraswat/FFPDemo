@@ -104,7 +104,7 @@ button, .btn {
   gap: 0.5rem;
 }
 
-button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):not(.action-btn):not(.pagination-btn), .btn {
+/* button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):not(.action-btn):not(.pagination-btn), .btn {
   background: #dc2626;
   color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -118,6 +118,35 @@ button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):
 
 button:not(.logout-button):not(.login-button):not(.filter-btn):not(.create-btn):not(.action-btn):not(.pagination-btn):active, .btn:active {
   transform: translateY(0);
+} */
+.border-common{
+  border: 1px solid var(--Strokes-Primary, #D80C0C);
+  padding: 8px 16px;
+
+  border: 1px solid var(--Strokes-Primary, #D80C0C);
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: var(--Strokes-Primary, #D80C0C);
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0px 1px 2px 0px #0000000D;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.border-common:hover {
+  background: #fff3f3;
+  border-color: var(--Strokes-Primary, #D80C0C);
+  box-shadow: 0px 2px 4px 0px rgba(216, 12, 12, 0.15);
+  transform: translateY(-1px);
+}
+
+.border-common:active {
+  transform: translateY(0);
+  box-shadow: 0px 1px 2px 0px #0000000D;
 }
 
 /* Form elements */
@@ -231,5 +260,32 @@ tbody td {
   border: 2px solid #93c5fd;
   margin: 1rem 0;
   font-weight: 500;
+}
+
+/* Hide scrollbar but keep scrolling functionality */
+.hide-scrollbar,
+.user-table-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar,
+.user-table-container::-webkit-scrollbar {
+  display: none !important;  /* Chrome, Safari and Opera */
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.hide-scrollbar::-webkit-scrollbar-track,
+.user-table-container::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb,
+.user-table-container::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
 }
 

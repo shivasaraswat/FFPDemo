@@ -24,3 +24,4 @@ const EmailConfigurations = () => {
 export default EmailConfigurations;
 
 
+

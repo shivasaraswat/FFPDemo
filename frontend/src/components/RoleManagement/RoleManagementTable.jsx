@@ -142,57 +142,99 @@ const RoleManagementTable = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-12 px-8 text-lg text-text-secondary font-medium">
-        <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-4 mr-2"></div>
-        Loading...
+      <div className="">
+        <div className="bg-white rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <div className="text-center py-8 text-gray-600">Loading roles...</div>
+        </div>
       </div>
     );
   }
 
+  const totalRecords = accessObjects.length;
+
   return (
-    <div className="p-0 max-w-full overflow-x-auto">
-      <div className="mb-8 px-2">
-        <div className="text-text-secondary text-sm mb-3 flex items-center gap-2 before:content-['›'] before:text-gray-400 before:mr-1">Home / Role Management</div>
-        <div className="flex justify-between items-center">
-          <h1 className="text-text-primary mb-4 text-3xl font-semibold tracking-tight">Role Management</h1>
-          <div className="flex justify-end gap-4">
-            <button className="bg-danger text-white border-none px-6 py-3 rounded-lg cursor-pointer text-sm font-semibold transition-all duration-300 shadow-sm tracking-wide hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onClick={handleAddRole}>
-              + Add Role
-            </button>
+    <div className="">
+      <style>{`
+        .user-table-container::-webkit-scrollbar,
+        .user-table-container .overflow-x-auto::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+        .user-table-container,
+        .user-table-container .overflow-x-auto {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+      `}</style>
+      <div className="bg-white rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">
+            Role Management
+            <span className="text-gray-400 ml-1.5 font-normal">({totalRecords} Access Objects)</span>
+          </h2>
+          <button 
+            className="flex items-center gap-1.5 px-4 py-2 border-common text-sm font-medium"
+            onClick={handleAddRole}
+          >
+            <span>+</span>
+            Add Role
+          </button>
+        </div>
+
+        {/* Message */}
+        {message.text && (
+          <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === 'error' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-green-100 text-green-800 border border-green-300'}`}>
+            {message.text}
+          </div>
+        )}
+
+        {/* Table */}
+        <div 
+          className="border border-gray-200 rounded-lg overflow-hidden user-table-container" 
+          style={{ 
+            height: 'calc(100vh - 250px)', 
+            overflowY: 'auto',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
+          <div className="overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <table className="w-full border-collapse min-w-[800px] bg-white">
+              <thead className="bg-bg-secondary border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[250px]">Access Objects</th>
+                  {roles.map(role => (
+                    <RoleHeader key={role.id} role={role} />
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {accessObjects.length === 0 ? (
+                  <tr>
+                    <td colSpan={roles.length + 1} className="px-4 py-12 text-center text-gray-500">
+                      No access objects found.
+                    </td>
+                  </tr>
+                ) : (
+                  accessObjects.map(accessObject => (
+                    <AccessObjectRow
+                      key={accessObject.key}
+                      accessObject={accessObject}
+                      roles={roles}
+                      permissions={permissions}
+                      expandedObjects={expandedObjects}
+                      onToggleExpand={toggleExpand}
+                      onPermissionChange={handlePermissionChange}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-
-      {message.text && (
-        <div className={`p-4 px-5 rounded-xl mb-6 font-medium animate-[slideDown_0.3s_ease-out] ${message.type === 'error' ? 'bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-300' : 'bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-2 border-green-300'}`}>
-          {message.text}
-        </div>
-      )}
-
-      <div className="overflow-x-auto border border-border rounded-lg bg-white shadow-sm">
-        <table className="w-full border-collapse min-w-[800px]">
-          <thead className="bg-bg-secondary sticky top-0 z-10">
-            <tr>
-              <th className="px-4 py-4 text-left font-semibold text-gray-700 border-r border-border border-b border-border min-w-[250px]">Access Objects</th>
-              {roles.map(role => (
-                <RoleHeader key={role.id} role={role} />
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {accessObjects.map(accessObject => (
-              <AccessObjectRow
-                key={accessObject.key}
-                accessObject={accessObject}
-                roles={roles}
-                permissions={permissions}
-                expandedObjects={expandedObjects}
-                onToggleExpand={toggleExpand}
-                onPermissionChange={handlePermissionChange}
-              />
-            ))}
-          </tbody>
-        </table>
       </div>
 
       <AddRoleModal

@@ -24,3 +24,4 @@ router.put('/:id', updateValidation, permissionController.update.bind(permission
 module.exports = router;
 
 
+
