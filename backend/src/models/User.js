@@ -1,5 +1,7 @@
 const pool = require('../config/database');
 const UserRole = require('./UserRole');
+const UserCountry = require('./UserCountry');
+const UserGdCode = require('./UserGdCode');
 
 class User {
   static async create(userData) {
@@ -48,6 +50,10 @@ class User {
       isSystemRole: role.isSystemRole
     }));
     
+    // Get countries and gdCodes from junction tables
+    user.country = await UserCountry.findByUser(id);
+    user.gdCode = await UserGdCode.findByUser(id);
+    
     return user;
   }
 
@@ -75,6 +81,10 @@ class User {
       description: role.description,
       isSystemRole: role.isSystemRole
     }));
+    
+    // Get countries and gdCodes from junction tables
+    user.country = await UserCountry.findByUser(user.id);
+    user.gdCode = await UserGdCode.findByUser(user.id);
     
     return user;
   }
@@ -105,7 +115,22 @@ class User {
     query += ' ORDER BY u.createdAt DESC';
 
     const [rows] = await pool.execute(query, params);
-    return rows;
+    
+    // Optionally load countries and gdCodes for all users
+    // This can be expensive for large datasets, so we'll load them
+    const usersWithRelations = await Promise.all(
+      rows.map(async (user) => {
+        const countries = await UserCountry.findByUser(user.id);
+        const gdCodes = await UserGdCode.findByUser(user.id);
+        return {
+          ...user,
+          country: countries,
+          gdCode: gdCodes
+        };
+      })
+    );
+    
+    return usersWithRelations;
   }
 
   static async update(id, userData) {

@@ -223,27 +223,39 @@
   color: #374151;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 0.875rem;
   color: #374151;
+  background: #f9fafb;
   transition: all 0.2s ease;
+  width: 100%;
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: #d1d5db;
+  background: #ffffff;
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #dc2626;
+  background: #ffffff;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
-.form-group input:disabled {
-  background-color: #cfd4d9;
+.form-group input:disabled,
+.form-group select:disabled {
+  background-color: #f3f4f6;
   color: #6b7280;
   cursor: not-allowed;
-  opacity: 1;
+  opacity: 0.7;
 }
 
 .form-group textarea {
@@ -270,53 +282,42 @@
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid #e5e7eb;
+  justify-content: flex-end;
 }
 
-.save-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #dc2626;
-  color: white;
-  border: none;
-  border-radius: 6px;
+.profile-cancel-btn,
+.profile-save-btn {
+  padding: 0.625rem 1.5rem;
+  border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.save-btn:hover:not(:disabled) {
-  background: #b91c1c;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
-}
-
-.save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.cancel-btn {
-  padding: 0.75rem 1.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+.profile-cancel-btn {
   background: #ffffff;
-  color: #374151;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  color: #6b7280;
 }
 
-.cancel-btn:hover:not(:disabled) {
+.profile-cancel-btn:hover:not(:disabled) {
   background: #f9fafb;
-  border-color: #9ca3af;
 }
 
-.cancel-btn:disabled {
+.profile-save-btn {
+  background: #ffffff;
+  color: #D80C0C;
+}
+
+.profile-save-btn:hover:not(:disabled) {
+  background: #fff3f3;
+}
+
+.profile-cancel-btn:disabled,
+.profile-save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

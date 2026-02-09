@@ -11,9 +11,11 @@ const ProfileInformation = () => {
   const initialFormData = {
     name: user?.name || '',
     email: user?.email || '',
-    phoneNumber: user?.mobile || '',
+    iamShortId: user?.iamShortId || user?.ssoId || '',
     address: user?.address || '',
-    role: user?.roles?.[0]?.name || 'CREATOR'
+    language: user?.language || 'en',
+    region: user?.region || '',
+    roles: user?.roles || []
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -24,9 +26,11 @@ const ProfileInformation = () => {
     const newFormData = {
       name: user?.name || '',
       email: user?.email || '',
-      phoneNumber: user?.mobile || '',
+      iamShortId: user?.iamShortId || user?.ssoId || '',
       address: user?.address || '',
-      role: user?.roles?.[0]?.name || 'CREATOR'
+      language: user?.language || 'en',
+      region: user?.region || '',
+      roles: user?.roles || []
     };
     setFormData(newFormData);
     setOriginalFormData(newFormData);
@@ -89,8 +93,10 @@ const ProfileInformation = () => {
       const updateData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        mobile: formData.phoneNumber.trim() || null,
-        address: formData.address.trim() || null
+        iamShortId: formData.iamShortId.trim() || null,
+        address: formData.address.trim() || null,
+        language: formData.language || 'en',
+        region: formData.region.trim() || null
       };
 
       // Call API to update user
@@ -100,7 +106,13 @@ const ProfileInformation = () => {
       const updatedUserData = {
         ...user,
         ...updateData,
-        name: updateData.name
+        name: updateData.name,
+        email: updateData.email,
+        iamShortId: updateData.iamShortId,
+        ssoId: updateData.iamShortId,
+        address: updateData.address,
+        language: updateData.language,
+        region: updateData.region
       };
       
       setUser(updatedUserData);
@@ -211,21 +223,6 @@ const ProfileInformation = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="role">Role</label>
-              <input
-                id="role"
-                type="text"
-                value={formData.role}
-                readOnly
-                disabled
-                className="role-input"
-              />
-              <p className="role-hint">Role based permissions are locked by administrator</p>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
               <label htmlFor="email">Email Address</label>
               <input
                 id="email"
@@ -234,16 +231,64 @@ const ProfileInformation = () => {
                 onChange={(e) => handleChange('email', e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
-              <label htmlFor="phoneNumber">Phone Number</label>
+              <label htmlFor="iamShortId">IAM Short ID</label>
               <input
-                id="phoneNumber"
-                type="tel"
-                value={formData.phoneNumber}
-                onChange={(e) => handleChange('phoneNumber', e.target.value)}
+                id="iamShortId"
+                type="text"
+                value={formData.iamShortId}
+                onChange={(e) => handleChange('iamShortId', e.target.value)}
+                placeholder="Enter IAM Short ID"
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="language">Language</label>
+              <select
+                id="language"
+                value={formData.language}
+                onChange={(e) => handleChange('language', e.target.value)}
+              >
+                <option value="en">English</option>
+                <option value="ja">日本語 (Japanese)</option>
+              </select>
+            </div>
           </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="roles">Roles</label>
+              <input
+                id="roles"
+                type="text"
+                value={Array.isArray(formData.roles) && formData.roles.length > 0 
+                  ? formData.roles.map(r => r.name || r).join(', ') 
+                  : 'No roles assigned'}
+                readOnly
+                disabled
+                className="role-input"
+              />
+              <p className="role-hint">Role based permissions are locked by administrator</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="region">Region</label>
+              <select
+                id="region"
+                value={formData.region}
+                onChange={(e) => handleChange('region', e.target.value)}
+                disabled={!formData.roles.some(r => r.code === 'RC' || r.code === 'GD')}
+              >
+                <option value="">Select a region</option>
+                <option value="North America">North America</option>
+                <option value="Europe">Europe</option>
+                <option value="Asia Pacific">Asia Pacific</option>
+                <option value="Middle East">Middle East</option>
+              </select>
+            </div>
+          </div>
+
 
           <div className="form-group">
             <label htmlFor="address">Address</label>
@@ -252,21 +297,46 @@ const ProfileInformation = () => {
               rows="3"
               value={formData.address}
               onChange={(e) => handleChange('address', e.target.value)}
+              placeholder="Enter your address"
             />
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="save-btn" disabled={loading}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17 5L10 2L3 5V11C3 15.55 6.36 19.74 10 21C13.64 19.74 17 15.55 17 11V5Z" stroke="white" strokeWidth="1.5" fill="none"/>
-                <path d="M7 10L9 12L13 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-            <button type="button" className="cancel-btn" onClick={handleCancel} disabled={loading}>
+            <button 
+              type="button" 
+              className="profile-cancel-btn"
+              onClick={handleCancel} 
+              disabled={loading}
+            >
               Cancel
             </button>
+            <button 
+              type="submit" 
+              className="profile-save-btn"
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+              <span style={{ color: '#D80C0C' }}>›</span>
+            </button>
           </div>
+          <style>{`
+            .profile-form .profile-cancel-btn {
+              border: 2px solid #d1d5db !important;
+              background: #ffffff !important;
+              color: #6b7280 !important;
+            }
+            .profile-form .profile-save-btn {
+              border: 2px solid #D80C0C !important;
+              background: #ffffff !important;
+              color: #D80C0C !important;
+            }
+            .profile-form .profile-save-btn:hover:not(:disabled) {
+              background: #fff3f3 !important;
+            }
+            .profile-form .profile-cancel-btn:hover:not(:disabled) {
+              background: #f9fafb !important;
+            }
+          `}</style>
         </form>
       </div>
     </div>

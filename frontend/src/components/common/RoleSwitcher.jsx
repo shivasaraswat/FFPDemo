@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 const RoleSwitcher = () => {
   const { user, selectedRole, setSelectedRole } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   if (!user || !user.roles) {
     return null;
@@ -18,34 +37,67 @@ const RoleSwitcher = () => {
 
   // If only one role, don't show dropdown
   if (rcGdRoles.length === 1) {
-    return (
-      <div className="flex items-center gap-3 px-5 py-2.5 bg-white/80 backdrop-blur-[10px] rounded-xl mr-4 border border-gray-200/80 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-        <span className="font-semibold text-text-secondary text-sm tracking-wide whitespace-nowrap">Role:</span>
-        <span className="font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent text-sm">{rcGdRoles[0].name}</span>
-      </div>
-    );
+    return null;
   }
 
-  const handleRoleChange = async (e) => {
-    const newRoleCode = e.target.value;
-    await setSelectedRole(newRoleCode);
+  const handleRoleChange = async (roleCode) => {
+    await setSelectedRole(roleCode);
+    setIsOpen(false);
   };
 
+  const currentRole = rcGdRoles.find(r => r.code === (selectedRole || rcGdRoles[0].code)) || rcGdRoles[0];
+
   return (
-    <div className="flex items-center gap-3 px-5 py-2.5 bg-white/80 backdrop-blur-[10px] rounded-xl mr-4 border border-gray-200/80 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-      <label htmlFor="role-select" className="font-semibold text-text-secondary text-sm tracking-wide whitespace-nowrap">Role:</label>
-      <select
-        id="role-select"
-        value={selectedRole || rcGdRoles[0].code}
-        onChange={handleRoleChange}
-        className="px-4 py-2 border-2 border-border rounded-lg bg-gradient-to-b from-white to-bg-secondary text-sm font-semibold text-gray-700 cursor-pointer transition-all duration-300 min-w-[120px] hover:border-primary hover:bg-white hover:shadow-[0_2px_8px_rgba(102,126,234,0.15)] focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-white"
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg bg-white text-sm font-semibold text-gray-700 cursor-pointer transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[120px] justify-between"
       >
-        {rcGdRoles.map(role => (
-          <option key={role.id} value={role.code}>
-            {role.name}
-          </option>
-        ))}
-      </select>
+        <span>{currentRole.name}</span>
+        <svg 
+          width="12" 
+          height="12" 
+          viewBox="0 0 12 12" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        >
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+      
+      {isOpen && (
+        <div className="absolute top-[calc(100%+0.5rem)] right-0 bg-white border-2 border-gray-200 rounded-lg shadow-lg z-50 min-w-[120px] overflow-hidden animate-[slideDownDropdown_0.2s_ease-out]">
+          {rcGdRoles.map(role => (
+            <button
+              key={role.id}
+              type="button"
+              onClick={() => handleRoleChange(role.code)}
+              className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors duration-150 ${
+                role.code === (selectedRole || rcGdRoles[0].code)
+                  ? 'bg-red-50 text-danger font-semibold'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {role.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideDownDropdown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };

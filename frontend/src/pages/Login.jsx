@@ -27,8 +27,18 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 md:p-10">
+    <div className="flex justify-center items-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 min-h-screen">
+      <div className="login-container bg-white rounded-2xl shadow-xl w-full max-w-md p-8 md:p-10">
+        <style>{`
+          .login-container .login-submit-btn {
+            border: 2px solid #D80C0C !important;
+            background: #ffffff !important;
+            color: #D80C0C !important;
+          }
+          .login-container .login-submit-btn:hover:not(:disabled) {
+            background: #fff3f3 !important;
+          }
+        `}</style>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Field Fix</h1>
           <p className="text-gray-600 text-sm">Sign in to your account</p>
@@ -76,9 +86,15 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-danger text-white font-semibold rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+            className="login-submit-btn w-full py-3 px-4 font-semibold rounded-lg focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={{ 
+              background: '#ffffff',
+              color: '#D80C0C',
+              border: '2px solid #D80C0C'
+            }}
           >
             {loading ? 'Logging in...' : 'LOGIN'}
+            <span style={{ color: '#D80C0C' }}>›</span>
           </button>
         </form>
       </div>

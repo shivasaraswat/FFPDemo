@@ -70,7 +70,15 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000]" onClick={handleClose}>
-      <div className="bg-white rounded-lg w-[90%] max-w-[500px] max-h-[90vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-lg w-[90%] max-w-[500px] max-h-[90vh] overflow-y-auto shadow-lg add-role-modal" onClick={(e) => e.stopPropagation()}>
+        <style>{`
+          .add-role-modal .modal-cancel-btn {
+            border: 2px solid #d1d5db !important;
+          }
+          .add-role-modal .modal-submit-btn {
+            border: 2px solid #D80C0C !important;
+          }
+        `}</style>
         <div className="flex justify-between items-center p-6 border-b border-gray-300">
           <h2 className="m-0 text-2xl">Add New Role</h2>
           <button className="bg-transparent border-none text-3xl cursor-pointer text-gray-600 leading-none p-0 w-8 h-8 flex items-center justify-center hover:text-black transition-colors" onClick={handleClose}>&times;</button>
@@ -119,7 +127,7 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
           <div className="flex justify-end gap-4 mt-8">
             <button
               type="button"
-              className="px-6 py-2.5 border-common rounded-lg font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+              className="modal-cancel-btn px-6 py-2.5 rounded-lg font-semibold bg-white text-gray-500 cursor-pointer transition-all duration-300 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={handleClose}
               disabled={loading}
             >
@@ -127,10 +135,12 @@ const AddRoleModal = ({ isOpen, onClose, onSave, loading }) => {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 border-none rounded-lg bg-danger text-white font-semibold cursor-pointer transition-all duration-300 hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+              className="modal-submit-btn px-6 py-2.5 rounded-lg font-semibold bg-white cursor-pointer transition-all duration-300 hover:bg-red-50 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ color: '#D80C0C' }}
               disabled={loading}
             >
               {loading ? 'Adding...' : 'Add Role'}
+              <span style={{ color: '#D80C0C' }}>›</span>
             </button>
           </div>
         </form>

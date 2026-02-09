@@ -571,6 +571,12 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             width: 0 !important;
             height: 0 !important;
           }
+          .user-form-modal .modal-cancel-btn {
+            border: 2px solid #d1d5db !important;
+          }
+          .user-form-modal .modal-submit-btn {
+            border: 2px solid #D80C0C !important;
+          }
         `}</style>
         <div className="flex justify-between items-center p-6 border-b border-gray-300">
           <h2 className="m-0 text-gray-800 text-2xl">{isEditMode ? t('editUser') : t('addNewUser')}</h2>
@@ -819,11 +825,20 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
           })()}
 
           <div className="flex justify-end gap-4 mt-6">
-            <button type="button" className="px-6 py-2.5 border-common rounded-lg font-semibold" onClick={onCancel}>
+            <button 
+              type="button" 
+              className="modal-cancel-btn px-6 py-2.5 rounded-lg font-semibold bg-white text-gray-500 cursor-pointer transition-all duration-300 hover:bg-gray-50"
+              onClick={onCancel}
+            >
               {t('cancel')}
             </button>
-            <button type="submit" className="px-6 py-2.5 border-none rounded-lg bg-danger text-white font-semibold cursor-pointer transition-all duration-300 hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg">
+            <button 
+              type="submit" 
+              className="modal-submit-btn px-6 py-2.5 rounded-lg font-semibold bg-white cursor-pointer transition-all duration-300 hover:bg-red-50 flex items-center gap-2"
+              style={{ color: '#D80C0C' }}
+            >
               {isEditMode ? t('updateUser') : t('createUser')}
+              <span style={{ color: '#D80C0C' }}>›</span>
             </button>
           </div>
         </form>
