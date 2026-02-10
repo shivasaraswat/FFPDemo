@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { userService } from '../../services/userService';
 import { roleService } from '../../services/roleService';
 import UserTable from '../../components/UserManagement/UserTable';
@@ -13,12 +13,34 @@ const DeactivatedUsers = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [formKey, setFormKey] = useState(0);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [searchInput, setSearchInput] = useState(''); // Separate state for input
   const [filters, setFilters] = useState({
     roleId: '',
     search: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  const searchTimeoutRef = useRef(null);
+
+  // Debounce search input
+  useEffect(() => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout to update filters after 500ms of no typing
+    searchTimeoutRef.current = setTimeout(() => {
+      setFilters(prev => ({ ...prev, search: searchInput }));
+    }, 500);
+
+    // Cleanup on unmount
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchInput]);
 
   useEffect(() => {
     loadData();
@@ -125,6 +147,7 @@ const DeactivatedUsers = () => {
   };
 
   const handleClear = () => {
+    setSearchInput('');
     setFilters({ roleId: '', search: '' });
     setCurrentPage(1);
   };
@@ -174,8 +197,8 @@ const DeactivatedUsers = () => {
               <input
                 type="text"
                 placeholder="Search by name or email"
-                value={filters.search}
-                onChange={e => setFilters({...filters, search: e.target.value})}
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
                 className="w-60 h-18 px-4 pl-10 border border-gray-300 rounded-lg text-sm bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10 placeholder:text-gray-400"
               />
             </div>
@@ -194,13 +217,13 @@ const DeactivatedUsers = () => {
             
             {/* Clear Button */}
             <button 
-              className="w-40 h-18 px-4 border-common text-sm font-medium flex items-center justify-center gap-2"
+              className="h-18 px-4 border-common text-sm font-medium flex items-center justify-center gap-2"
               onClick={handleClear}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Clear Filters
+              Clear
             </button>
           </div>
         </div>
