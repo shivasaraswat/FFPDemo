@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SnackbarProvider } from './context/SnackbarContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Login';
@@ -152,9 +153,11 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="App">
-          <AppRoutes />
-        </div>
+        <SnackbarProvider>
+          <div className="App">
+            <AppRoutes />
+          </div>
+        </SnackbarProvider>
       </AuthProvider>
     </Router>
   );

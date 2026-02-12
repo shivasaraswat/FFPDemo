@@ -3,16 +3,18 @@ import { userService } from '../../services/userService';
 import { roleService } from '../../services/roleService';
 import UserTable from '../../components/UserManagement/UserTable';
 import UserForm from '../../components/UserManagement/UserForm';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
+import { useSnackbar } from '../../context/SnackbarContext';
 import '../Common.css';
 
 const ManageUsers = () => {
+  const { success, error: showError } = useSnackbar();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formKey, setFormKey] = useState(0);
-  const [message, setMessage] = useState({ type: '', text: '' });
   const [searchInput, setSearchInput] = useState(''); // Separate state for input
   const [filters, setFilters] = useState({
     roleId: '',
@@ -21,6 +23,7 @@ const ManageUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
   const searchTimeoutRef = useRef(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: null, userId: null });
 
   // Debounce search input
   useEffect(() => {
@@ -62,7 +65,7 @@ const ManageUsers = () => {
       setRoles(rolesData);
     } catch (error) {
       console.error('Failed to load data:', error);
-      setMessage({ type: 'error', text: 'Failed to load users data' });
+      showError('Failed to load users data');
     } finally {
       setLoading(false);
     }
@@ -89,49 +92,41 @@ const ManageUsers = () => {
       setShowForm(true);
     } catch (error) {
       console.error('Failed to load user data:', error);
-      setMessage({ 
-        type: 'error', 
-        text: 'Failed to load user data for editing' 
-      });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showError('Failed to load user data for editing');
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
+  const handleDelete = (id) => {
+    setConfirmModal({ isOpen: true, type: 'delete', userId: id });
+  };
 
+  const confirmDelete = async () => {
+    const userId = confirmModal.userId;
+    setConfirmModal({ isOpen: false, type: null, userId: null });
+    
     try {
-      await userService.delete(id);
-      setMessage({ type: 'success', text: 'User deleted successfully' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      await userService.delete(userId);
+      success('User deleted successfully');
       loadData();
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.error || 'Failed to delete user' 
-      });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showError(error.response?.data?.error || 'Failed to delete user');
     }
   };
 
-  const handleDeactivate = async (id) => {
-    if (!window.confirm('Are you sure you want to deactivate this user?')) {
-      return;
-    }
+  const handleDeactivate = (id) => {
+    setConfirmModal({ isOpen: true, type: 'deactivate', userId: id });
+  };
 
+  const confirmDeactivate = async () => {
+    const userId = confirmModal.userId;
+    setConfirmModal({ isOpen: false, type: null, userId: null });
+    
     try {
-      await userService.deactivate(id);
-      setMessage({ type: 'success', text: 'User deactivated successfully' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      await userService.deactivate(userId);
+      success('User deactivated successfully');
       loadData();
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.error || 'Failed to deactivate user' 
-      });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showError(error.response?.data?.error || 'Failed to deactivate user');
     }
   };
 
@@ -139,21 +134,16 @@ const ManageUsers = () => {
     try {
       if (editingUser) {
         await userService.update(editingUser.id, userData);
-        setMessage({ type: 'success', text: 'User updated successfully' });
+        success('User updated successfully');
       } else {
         await userService.create(userData);
-        setMessage({ type: 'success', text: 'User created successfully' });
+        success('User created successfully');
       }
       setShowForm(false);
       setEditingUser(null);
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       loadData();
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Failed to save user' 
-      });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showError(error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Failed to save user');
     }
   };
 
@@ -323,6 +313,21 @@ const ManageUsers = () => {
             onCancel={handleFormCancel}
           />
         )}
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmModal.isOpen}
+          onClose={() => setConfirmModal({ isOpen: false, type: null, userId: null })}
+          onConfirm={confirmModal.type === 'delete' ? confirmDelete : confirmDeactivate}
+          title={confirmModal.type === 'delete' ? 'Delete User' : 'Deactivate User'}
+          message={confirmModal.type === 'delete' 
+            ? 'Are you sure you want to delete this user? This action cannot be undone.'
+            : 'Are you sure you want to deactivate this user?'
+          }
+          confirmText={confirmModal.type === 'delete' ? 'Delete' : 'Deactivate'}
+          cancelText="Cancel"
+          type={confirmModal.type === 'delete' ? 'danger' : 'warning'}
+        />
       </div>
     </div>
   );
