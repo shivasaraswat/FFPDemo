@@ -44,7 +44,63 @@ const apiMappings = [
   { method: 'GET', path: '/api/api-registry/module/:moduleKey', moduleKey: 'MANAGE_ROLES', requiredAccess: 'READ' },
   { method: 'POST', path: '/api/api-registry', moduleKey: 'MANAGE_ROLES', requiredAccess: 'FULL' },
   { method: 'PUT', path: '/api/api-registry/:id', moduleKey: 'MANAGE_ROLES', requiredAccess: 'FULL' },
-  { method: 'DELETE', path: '/api/api-registry/:id', moduleKey: 'MANAGE_ROLES', requiredAccess: 'FULL' }
+  { method: 'DELETE', path: '/api/api-registry/:id', moduleKey: 'MANAGE_ROLES', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Region
+  { method: 'GET', path: '/api/masters/region', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/region/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/region', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/region/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/region/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Region Center
+  { method: 'GET', path: '/api/masters/regioncenter', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/regioncenter/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/regioncenter', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/regioncenter/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/regioncenter/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Countries
+  { method: 'GET', path: '/api/masters/countries', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/countries/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/countries', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/countries/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/countries/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Model
+  { method: 'GET', path: '/api/masters/model', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/model/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/model', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/model/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/model/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - SM Type
+  { method: 'GET', path: '/api/masters/smtype', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/smtype/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/smtype', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/smtype/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/smtype/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Aggregate
+  { method: 'GET', path: '/api/masters/aggregate', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/aggregate/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/aggregate', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/aggregate/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/aggregate/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Sub Aggregate
+  { method: 'GET', path: '/api/masters/subaggregate', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/subaggregate/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/subaggregate', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/subaggregate/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/subaggregate/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+
+  // Master Management APIs - Categories
+  { method: 'GET', path: '/api/masters/categories', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'GET', path: '/api/masters/categories/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'READ' },
+  { method: 'POST', path: '/api/masters/categories', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'PUT', path: '/api/masters/categories/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' },
+  { method: 'DELETE', path: '/api/masters/categories/:id', moduleKey: 'MANAGE_MASTERS', requiredAccess: 'FULL' }
 ];
 
 async function seedApiRegistry() {

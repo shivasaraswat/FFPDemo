@@ -187,49 +187,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     return countryMap[region] || [];
   };
 
-  // GD Code options based on country (supports multiple countries)
-  const getGdCodesByCountry = (countries) => {
-    const gdCodeMap = {
-      'USA': ['GD001', 'GD002', 'GD003'],
-      'Canada': ['GD010', 'GD011'],
-      'Mexico': ['GD020'],
-      'UK': ['GD100', 'GD101', 'GD102'],
-      'Germany': ['GD110', 'GD111'],
-      'France': ['GD120'],
-      'Italy': ['GD130'],
-      'Spain': ['GD140'],
-      'Japan': ['GD200', 'GD201', 'GD202', 'GD203'],
-      'China': ['GD210', 'GD211'],
-      'India': ['GD220', 'GD221', 'GD222'],
-      'Australia': ['GD230'],
-      'Singapore': ['GD240'],
-      'South Korea': ['GD250'],
-      'UAE': ['GD300', 'GD301'],
-      'Saudi Arabia': ['GD310'],
-      'Qatar': ['GD320'],
-      'Kuwait': ['GD330']
-    };
-    
-    // If countries is an array, get all GD codes for all selected countries
-    if (Array.isArray(countries) && countries.length > 0) {
-      const allCodes = [];
-      countries.forEach(country => {
-        if (gdCodeMap[country]) {
-          allCodes.push(...gdCodeMap[country]);
-        }
-      });
-      // Remove duplicates and sort
-      return [...new Set(allCodes)].sort();
-    }
-    
-    // Fallback for single country (backward compatibility)
-    if (typeof countries === 'string' && countries) {
-      return gdCodeMap[countries] || [];
-    }
-    
-    return [];
-  };
-
   // Initialize with empty form data
   const getInitialFormData = () => ({
     name: '',
@@ -241,7 +198,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     address: '',
     region: '',
     country: [],
-    gdCode: [],
     language: 'en'
   });
 
@@ -265,7 +221,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         address: '',
         region: '',
         country: [],
-        gdCode: [],
         language: 'en'
       });
       setShowPasswordField(true); // Show password field for new users
@@ -300,7 +255,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         address: user.address || '',
         region: user.region || '',
         country: Array.isArray(user.country) ? user.country : (user.country ? [user.country] : []),
-        gdCode: Array.isArray(user.gdCode) ? user.gdCode : (user.gdCode ? [user.gdCode] : []),
         language: user.language || 'en'
       });
       setShowPasswordField(false); // Hide password field initially in edit mode
@@ -351,13 +305,10 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       }
     }
 
-    // Validate country and GD Code for GD role (or when both RC and GD are selected - follow GD behavior)
+    // Validate country for GD role (or when both RC and GD are selected - follow GD behavior)
     if (hasGdRole || (hasRcRole && hasGdRole)) {
       if (!formData.country || !Array.isArray(formData.country) || formData.country.length === 0) {
         newErrors.country = 'At least one country is required for GD users';
-      }
-      if (!formData.gdCode || !Array.isArray(formData.gdCode) || formData.gdCode.length === 0) {
-        newErrors.gdCode = 'At least one GD Code is required for GD users';
       }
     }
 
@@ -385,7 +336,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         delete submitData.password;
       }
       
-      // Check if country and gdCode are required (for GD role)
+      // Check if country is required (for GD role)
       const selectedRcGdRoles = rcGdRoles.filter(r => submitData.roleIds.includes(r.id));
       const hasGdRole = selectedRcGdRoles.some(r => r.code === 'GD');
       const hasRcRole = selectedRcGdRoles.some(r => r.code === 'RC');
@@ -400,11 +351,8 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         if (key === 'region' && submitData[key] === '' && !isRegionRequired) {
           delete submitData[key];
         }
-        // Remove country and gdCode only if they're empty and not required
+        // Remove country only if it's empty and not required
         if (key === 'country' && (!Array.isArray(submitData[key]) || submitData[key].length === 0) && !isCountryRequired) {
-          delete submitData[key];
-        }
-        if (key === 'gdCode' && (!Array.isArray(submitData[key]) || submitData[key].length === 0) && !isCountryRequired) {
           delete submitData[key];
         }
         // Remove empty roleIds array
@@ -425,32 +373,24 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       // If user selects an "other role", clear RC/GD checkboxes
       if (value) {
         updatedFormData.roleIds = [];
-        // Clear region, country, and gdCode since they're only required for RC/GD
+        // Clear region and country since they're only required for RC/GD
         updatedFormData.region = '';
         updatedFormData.country = [];
-        updatedFormData.gdCode = [];
       }
     } else if (field === 'roleIds') {
       // If user selects RC/GD checkboxes, clear "other role" dropdown
       if (value.length > 0) {
         updatedFormData.nonRcGdRoleId = '';
       } else {
-        // If no RC/GD roles selected, clear region, country, and gdCode
+        // If no RC/GD roles selected, clear region and country
         updatedFormData.region = '';
         updatedFormData.country = [];
-        updatedFormData.gdCode = [];
       }
     }
     
-    // Handle region change - reset country and gdCode when region changes
+    // Handle region change - reset country when region changes
     if (field === 'region') {
       updatedFormData.country = [];
-      updatedFormData.gdCode = [];
-    }
-    
-    // Handle country change - reset gdCode when country changes
-    if (field === 'country') {
-      updatedFormData.gdCode = [];
     }
     
     setFormData(updatedFormData);
@@ -476,13 +416,10 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
           setErrors(newErrors);
         }
         
-        // For GD role (or both RC and GD), validate country and gdCode
+        // For GD role (or both RC and GD), validate country
         if (hasGdRole || (hasRcRole && hasGdRole)) {
           if (!updatedFormData.country || !Array.isArray(updatedFormData.country) || updatedFormData.country.length === 0) {
             setErrors({ ...errors, country: 'At least one country is required for GD users' });
-          }
-          if (!updatedFormData.gdCode || !Array.isArray(updatedFormData.gdCode) || updatedFormData.gdCode.length === 0) {
-            setErrors({ ...errors, gdCode: 'At least one GD Code is required for GD users' });
           }
         }
       } else {
@@ -490,7 +427,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         const newErrors = { ...errors };
         delete newErrors.region;
         delete newErrors.country;
-        delete newErrors.gdCode;
         setErrors(newErrors);
       }
     }
@@ -514,18 +450,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       if (hasGdRole || (hasRcRole && hasGdRole)) {
         const newErrors = { ...errors };
         delete newErrors.country;
-        setErrors(newErrors);
-      }
-    }
-    
-    // If gdCode changed and GD role is selected, clear error
-    if (field === 'gdCode' && Array.isArray(value) && value.length > 0) {
-      const selectedRcGdRoles = rcGdRoles.filter(r => updatedFormData.roleIds.includes(r.id));
-      const hasGdRole = selectedRcGdRoles.some(r => r.code === 'GD');
-      const hasRcRole = selectedRcGdRoles.some(r => r.code === 'RC');
-      if (hasGdRole || (hasRcRole && hasGdRole)) {
-        const newErrors = { ...errors };
-        delete newErrors.gdCode;
         setErrors(newErrors);
       }
     }
@@ -559,14 +483,12 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             height: 0 !important;
           }
           .user-form-modal select[multiple],
-          .user-form-modal .country-select,
-          .user-form-modal .gd-code-select {
+          .user-form-modal .country-select {
             -ms-overflow-style: none !important;
             scrollbar-width: none !important;
           }
           .user-form-modal select[multiple]::-webkit-scrollbar,
-          .user-form-modal .country-select::-webkit-scrollbar,
-          .user-form-modal .gd-code-select::-webkit-scrollbar {
+          .user-form-modal .country-select::-webkit-scrollbar {
             display: none !important;
             width: 0 !important;
             height: 0 !important;
@@ -775,7 +697,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             </div>
           </div>
 
-          {/* Country and GD Code fields - shown only for GD role (or when both RC and GD are selected) */}
+          {/* Country field - shown only for GD role (or when both RC and GD are selected) */}
           {(() => {
             const selectedRcGdRoles = rcGdRoles.filter(r => formData.roleIds.includes(r.id));
             const hasGdRole = selectedRcGdRoles.some(r => r.code === 'GD');
@@ -785,7 +707,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             if (!showGdFields) return null;
             
             const countryOptions = getCountriesByRegion(formData.region);
-            const gdCodeOptions = getGdCodesByCountry(formData.country);
             
             return (
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -803,22 +724,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                     getOptionLabel={(opt) => opt.label || opt.value}
                   />
                   {errors.country && <span className="mt-1 text-sm text-danger">{errors.country}</span>}
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="gdCode" className="mb-2 text-gray-800 font-medium text-sm">
-                    GD Code <span className="text-danger font-bold">*</span>
-                  </label>
-                  <MultiSelect
-                    options={gdCodeOptions.map(code => ({ value: code, label: code }))}
-                    value={Array.isArray(formData.gdCode) ? formData.gdCode : []}
-                    onChange={(selected) => handleChange('gdCode', selected)}
-                    placeholder="Select GD Code"
-                    disabled={!formData.country || !Array.isArray(formData.country) || formData.country.length === 0}
-                    error={errors.gdCode}
-                    getOptionLabel={(opt) => opt.label || opt.value || opt}
-                  />
-                  {errors.gdCode && <span className="mt-1 text-sm text-danger">{errors.gdCode}</span>}
                 </div>
               </div>
             );

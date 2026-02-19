@@ -2,7 +2,6 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const UserRole = require('../models/UserRole');
 const UserCountry = require('../models/UserCountry');
-const UserGdCode = require('../models/UserGdCode');
 const { hashPassword } = require('../utils/password');
 
 class UserService {
@@ -19,7 +18,7 @@ class UserService {
   }
 
   async create(userData) {
-    const { email, password, iamShortId, roleIds, roleId, country, gdCode, ...otherData } = userData;
+    const { email, password, iamShortId, roleIds, roleId, country, ...otherData } = userData;
 
     // Normalize name field: trim and replace multiple spaces with single space
     if (otherData.name !== undefined) {
@@ -69,23 +68,15 @@ class UserService {
       throw new Error('Region is required for RC and GD users');
     }
 
-    // Validate country and gdCode for GD role (or when both RC and GD are selected - follow GD behavior)
+    // Validate country for GD role (or when both RC and GD are selected - follow GD behavior)
     if (hasGD || (hasRC && hasGD)) {
       // Validate country array
       if (!country || !Array.isArray(country) || country.length === 0) {
         throw new Error('At least one country is required for GD users');
       }
       
-      // Validate gdCode array
-      if (!gdCode || !Array.isArray(gdCode) || gdCode.length === 0) {
-        throw new Error('At least one GD Code is required for GD users');
-      }
-      
       // Validate countries are valid for the selected region
       await this.validateCountriesForRegion(otherData.region, country);
-      
-      // Validate GD codes are valid for selected countries
-      await this.validateGdCodesForCountries(country, gdCode);
     }
 
     // Set primary roleId for backward compatibility (first role or RC/GD priority)
@@ -111,17 +102,14 @@ class UserService {
       await UserRole.add(user.id, roleIdToAssign);
     }
 
-    // Save countries and gdCodes if provided
+    // Save countries if provided
     if (hasGD || (hasRC && hasGD)) {
       if (country && Array.isArray(country) && country.length > 0) {
         await UserCountry.setCountries(user.id, country);
       }
-      if (gdCode && Array.isArray(gdCode) && gdCode.length > 0) {
-        await UserGdCode.setGdCodes(user.id, gdCode);
-      }
     }
 
-    // Return user with all roles, countries, and gdCodes
+    // Return user with all roles and countries
     return await User.findById(user.id);
   }
 
@@ -175,8 +163,8 @@ class UserService {
       throw new Error('User not found');
     }
 
-    // Extract country and gdCode from userData (they're handled separately)
-    const { country, gdCode, ...otherUserData } = userData;
+    // Extract country from userData (it's handled separately)
+    const { country, ...otherUserData } = userData;
     userData = otherUserData;
 
     // Normalize name field: trim and replace multiple spaces with single space
@@ -199,8 +187,8 @@ class UserService {
         throw new Error('You cannot change your own active status. Please contact an administrator.');
       }
       
-      // Only allow profile fields for self-updates (including country and gdCode)
-      const allowedFields = ['name', 'email', 'mobile', 'jobTitle', 'department', 'address', 'region', 'language', 'iamShortId', 'ssoId', 'password', 'country', 'gdCode'];
+      // Only allow profile fields for self-updates (including country)
+      const allowedFields = ['name', 'email', 'mobile', 'jobTitle', 'department', 'address', 'region', 'language', 'iamShortId', 'ssoId', 'password', 'country'];
       const restrictedFields = Object.keys(userData).filter(key => !allowedFields.includes(key));
       
       if (restrictedFields.length > 0) {
@@ -291,7 +279,7 @@ class UserService {
       throw new Error('Region is required for RC and GD users');
     }
 
-    // Handle country and gdCode updates for GD role
+    // Handle country updates for GD role
     if (hasGD || (hasRC && hasGD)) {
       // If country is being updated, validate it
       if (country !== undefined) {
@@ -300,30 +288,14 @@ class UserService {
         }
         await this.validateCountriesForRegion(finalRegion, country);
       }
-      
-      // If gdCode is being updated, validate it
-      if (gdCode !== undefined) {
-        if (!Array.isArray(gdCode) || gdCode.length === 0) {
-          throw new Error('At least one GD Code is required for GD users');
-        }
-        // Get final country list (updated or existing)
-        const finalCountries = country !== undefined ? country : (user.country || []);
-        if (finalCountries.length === 0) {
-          throw new Error('Country must be set before GD Code can be updated');
-        }
-        await this.validateGdCodesForCountries(finalCountries, gdCode);
-      }
     }
 
     // Update user basic fields
     const updatedUser = await User.update(id, userData);
 
-    // Update countries and gdCodes if provided
+    // Update countries if provided
     if (country !== undefined) {
       await UserCountry.setCountries(id, country);
-    }
-    if (gdCode !== undefined) {
-      await UserGdCode.setGdCodes(id, gdCode);
     }
 
     // Return updated user with all relations
@@ -423,47 +395,6 @@ class UserService {
     }
   }
 
-  async validateGdCodesForCountries(countries, gdCodes) {
-    if (!countries || !Array.isArray(countries) || !gdCodes || !Array.isArray(gdCodes)) {
-      return;
-    }
-
-    const gdCodeMap = {
-      'USA': ['GD001', 'GD002', 'GD003'],
-      'Canada': ['GD010', 'GD011'],
-      'Mexico': ['GD020'],
-      'UK': ['GD100', 'GD101', 'GD102'],
-      'Germany': ['GD110', 'GD111'],
-      'France': ['GD120'],
-      'Italy': ['GD130'],
-      'Spain': ['GD140'],
-      'Japan': ['GD200', 'GD201', 'GD202', 'GD203'],
-      'China': ['GD210', 'GD211'],
-      'India': ['GD220', 'GD221', 'GD222'],
-      'Australia': ['GD230'],
-      'Singapore': ['GD240'],
-      'South Korea': ['GD250'],
-      'UAE': ['GD300', 'GD301'],
-      'Saudi Arabia': ['GD310'],
-      'Qatar': ['GD320'],
-      'Kuwait': ['GD330']
-    };
-
-    // Get all valid GD codes for the selected countries
-    const validGdCodes = [];
-    countries.forEach(country => {
-      if (gdCodeMap[country]) {
-        validGdCodes.push(...gdCodeMap[country]);
-      }
-    });
-
-    // Check if all provided GD codes are valid
-    for (const gdCode of gdCodes) {
-      if (!validGdCodes.includes(gdCode)) {
-        throw new Error(`GD Code "${gdCode}" is not valid for the selected countries`);
-      }
-    }
-  }
 }
 
 module.exports = new UserService();

@@ -26,6 +26,7 @@ app.use('/api/permissions', authenticate, rbac, require('./routes/permissionRout
 app.use('/api/users', authenticate, rbac, require('./routes/userRoutes'));
 app.use('/api/api-registry', authenticate, rbac, require('./routes/apiRegistryRoutes'));
 app.use('/api/field-fix', authenticate, rbac, require('./routes/fieldFixRoutes'));
+app.use('/api/masters', authenticate, rbac, require('./routes/masterRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {
