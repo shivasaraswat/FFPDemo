@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SnackbarProvider } from './context/SnackbarContext';
+import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Login';
@@ -153,11 +154,13 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <SnackbarProvider>
-          <div className="App">
-            <AppRoutes />
-          </div>
-        </SnackbarProvider>
+        <NotificationProvider>
+          <SnackbarProvider>
+            <div className="App">
+              <AppRoutes />
+            </div>
+          </SnackbarProvider>
+        </NotificationProvider>
       </AuthProvider>
     </Router>
   );

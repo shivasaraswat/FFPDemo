@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import RoleSwitcher from '../common/RoleSwitcher';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import ProfileDropdown from '../common/ProfileDropdown';
+import NotificationBell from '../common/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
 
 const Layout = ({ children }) => {
@@ -35,13 +36,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center gap-6">
             <RoleSwitcher />
             <LanguageSwitcher />
-            <div className="relative cursor-pointer p-2 text-gray-700 transition-colors duration-200 hover:text-gray-900">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 2C8.34 2 7 3.34 7 5V8C7 9.1 6.55 10.1 5.8 10.8L5 11.6V13H15V11.6L14.2 10.8C13.45 10.1 13 9.1 13 8V5C13 3.34 11.66 2 10 2Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <path d="M8 13V14C8 15.1 8.9 16 10 16C11.1 16 12 15.1 12 14V13" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              </svg>
-              <span className="absolute top-0 right-0 bg-danger text-white rounded-full w-[18px] h-[18px] flex items-center justify-center text-[0.7rem] font-semibold border-2 border-white">1</span>
-            </div>
+            <NotificationBell />
             <ProfileDropdown user={user} />
           </div>
         </header>
