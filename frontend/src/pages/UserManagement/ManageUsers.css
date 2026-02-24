@@ -84,9 +84,22 @@
 .users-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #FFFFFF;
+  border: 0.8px solid #E7E7E7;
+  box-shadow: 0px 1px 3px 0px #0000001A;
+  border-radius: 8px;
   flex-wrap: wrap;
+}
+
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
 }
 
 .search-container {
@@ -118,12 +131,24 @@
 .search-input:focus {
   outline: none;
   border-color: #D80C0C;
-  ring: 2px;
-  ring-color: rgba(216, 12, 12, 0.1);
+  box-shadow: 0 0 0 2px rgba(216, 12, 12, 0.1);
 }
 
 .search-input::placeholder {
   color: #9ca3af;
+}
+
+.status-filter-container {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.status-label {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .status-select {
@@ -152,8 +177,7 @@
 .status-select:focus {
   outline: none;
   border-color: #D80C0C;
-  ring: 2px;
-  ring-color: rgba(216, 12, 12, 0.1);
+  box-shadow: 0 0 0 2px rgba(216, 12, 12, 0.1);
 }
 
 .clear-button {
@@ -167,9 +191,6 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .clear-button:hover {
