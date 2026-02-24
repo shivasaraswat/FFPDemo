@@ -5,9 +5,11 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import ProfileDropdown from '../common/ProfileDropdown';
 import NotificationBell from '../common/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
+import { useSidebar } from '../../context/SidebarContext';
 
 const Layout = ({ children }) => {
   const { user } = useAuth();
+  const { isCollapsed } = useSidebar();
 
   // Get user's primary role name (first role or RC/GD if available)
   const getUserRoleDisplay = () => {
@@ -28,7 +30,10 @@ const Layout = ({ children }) => {
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 ml-[280px] bg-bg-secondary flex flex-col transition-all duration-300 ease-in-out max-md:ml-0">
+      <main 
+        className="flex-1 bg-bg-secondary flex flex-col transition-all duration-300 ease-in-out max-md:ml-0"
+        style={{ marginLeft: isCollapsed ? '80px' : '280px' }}
+      >
         <header className="bg-white px-8 py-4 border-b border-border flex justify-between items-center gap-6 shadow-sm sticky top-0 z-[100]">
           <div className="flex items-center gap-4">
             {/* Empty space on left */}

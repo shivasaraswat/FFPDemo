@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SnackbarProvider } from './context/SnackbarContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { SidebarProvider } from './context/SidebarContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Login';
@@ -129,7 +130,7 @@ const AppRoutes = () => {
       <Route path="/field-fix-progress/archived" element={<ProtectedRoute><Layout><ArchivedFieldFixProgress /></Layout></ProtectedRoute>} />
       
       {/* User Management Routes */}
-      <Route path="/user-management" element={<ProtectedRoute><Layout><UserManagement /></Layout></ProtectedRoute>} />
+      <Route path="/user-management" element={<Navigate to="/user-management/manage-users" replace />} />
       <Route path="/user-management/manage-users" element={<ProtectedRoute requiredPermission="MANAGE_USERS" requiredLevel="read_only"><Layout><ManageUsers /></Layout></ProtectedRoute>} />
       <Route path="/user-management/manage-roles" element={<ProtectedRoute requiredPermission="MANAGE_ROLES" requiredLevel="read_only"><Layout><ManageRoles /></Layout></ProtectedRoute>} />
       <Route path="/user-management/deactivated-users" element={<ProtectedRoute requiredPermission="DEACTIVATED_USERS" requiredLevel="read_only"><Layout><DeactivatedUsers /></Layout></ProtectedRoute>} />
@@ -155,13 +156,15 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <NotificationProvider>
-          <SnackbarProvider>
-            <div className="App">
-              <AppRoutes />
-            </div>
-          </SnackbarProvider>
-        </NotificationProvider>
+        <SidebarProvider>
+          <NotificationProvider>
+            <SnackbarProvider>
+              <div className="App">
+                <AppRoutes />
+              </div>
+            </SnackbarProvider>
+          </NotificationProvider>
+        </SidebarProvider>
       </AuthProvider>
     </Router>
   );
