@@ -169,7 +169,7 @@ const ManageRoles = () => {
     }
   };
 
-  const handleSelectAll = async (module, checked) => {
+  const handleSelectAllReadOnly = async (module, checked) => {
     if (!selectedRole) return;
 
     // Get all features in this module (including children)
@@ -179,25 +179,87 @@ const ManageRoles = () => {
     const newPermissions = { ...permissions };
 
     allFeatures.forEach(feature => {
-      const newAccess = checked ? 'READ' : 'NONE';
-      newPermissions[feature.key] = newAccess;
-      updates.push({
-        roleId: selectedRole.id,
-        moduleKey: feature.key,
-        access: newAccess
-      });
+      if (checked) {
+        // When checked, set to READ access
+        newPermissions[feature.key] = 'READ';
+        updates.push({
+          roleId: selectedRole.id,
+          moduleKey: feature.key,
+          access: 'READ'
+        });
+      } else {
+        // When unchecked, only set to NONE if Full Access is not already set
+        const currentAccess = permissions[feature.key] || 'NONE';
+        if (currentAccess === 'READ') {
+          newPermissions[feature.key] = 'NONE';
+          updates.push({
+            roleId: selectedRole.id,
+            moduleKey: feature.key,
+            access: 'NONE'
+          });
+        }
+      }
     });
 
     setPermissions(newPermissions);
     updateSelectedFeatures(newPermissions);
 
-    try {
-      await permissionService.bulkUpdate(updates);
-      success(checked ? 'All features selected' : 'All features cleared');
-    } catch (error) {
-      console.error('Failed to update permissions:', error);
-      showError('Failed to update permissions');
-      loadPermissionsForRole(selectedRole.id);
+    if (updates.length > 0) {
+      try {
+        await permissionService.bulkUpdate(updates);
+        success(checked ? 'Read only access applied to all features' : 'Read only access removed');
+      } catch (error) {
+        console.error('Failed to update permissions:', error);
+        showError('Failed to update permissions');
+        loadPermissionsForRole(selectedRole.id);
+      }
+    }
+  };
+
+  const handleSelectAllFullAccess = async (module, checked) => {
+    if (!selectedRole) return;
+
+    // Get all features in this module (including children)
+    const allFeatures = getAllFeaturesInModule(module);
+    
+    const updates = [];
+    const newPermissions = { ...permissions };
+
+    allFeatures.forEach(feature => {
+      if (checked) {
+        // When checked, set to FULL access
+        newPermissions[feature.key] = 'FULL';
+        updates.push({
+          roleId: selectedRole.id,
+          moduleKey: feature.key,
+          access: 'FULL'
+        });
+      } else {
+        // When unchecked, only set to NONE if it was FULL
+        const currentAccess = permissions[feature.key] || 'NONE';
+        if (currentAccess === 'FULL') {
+          newPermissions[feature.key] = 'NONE';
+          updates.push({
+            roleId: selectedRole.id,
+            moduleKey: feature.key,
+            access: 'NONE'
+          });
+        }
+      }
+    });
+
+    setPermissions(newPermissions);
+    updateSelectedFeatures(newPermissions);
+
+    if (updates.length > 0) {
+      try {
+        await permissionService.bulkUpdate(updates);
+        success(checked ? 'Full access applied to all features' : 'Full access removed');
+      } catch (error) {
+        console.error('Failed to update permissions:', error);
+        showError('Failed to update permissions');
+        loadPermissionsForRole(selectedRole.id);
+      }
     }
   };
 
@@ -274,13 +336,6 @@ const ManageRoles = () => {
     return module.children ? module.children.length : 0;
   };
 
-  const isModuleAllSelected = (module) => {
-    if (!module.children || module.children.length === 0) return false;
-    return module.children.every(child => {
-      const access = permissions[child.key] || 'NONE';
-      return access === 'READ' || access === 'FULL';
-    });
-  };
 
   if (loading) {
     return (
@@ -352,7 +407,18 @@ const ManageRoles = () => {
                   {modules.map(module => {
                     const isExpanded = expandedModules.has(module.key);
                     const featureCount = getFeatureCount(module);
-                    const allSelected = isModuleAllSelected(module);
+                    // Check if all features have READ access
+                    const allReadOnly = module.children && module.children.length > 0 && 
+                      module.children.every(child => {
+                        const access = permissions[child.key] || 'NONE';
+                        return access === 'READ';
+                      });
+                    // Check if all features have FULL access
+                    const allFullAccess = module.children && module.children.length > 0 && 
+                      module.children.every(child => {
+                        const access = permissions[child.key] || 'NONE';
+                        return access === 'FULL';
+                      });
 
                     return (
                       <div key={module.key} className="module-section">
@@ -420,42 +486,19 @@ const ManageRoles = () => {
                               <label className="select-all-checkbox">
                                 <input
                                   type="checkbox"
-                                  checked={allSelected}
-                                  onChange={(e) => handleSelectAll(module, e.target.checked)}
+                                  checked={allReadOnly}
+                                  onChange={(e) => handleSelectAllReadOnly(module, e.target.checked)}
                                 />
-                                <span>Select All</span>
+                                <span>Select all screens for Read Only</span>
                               </label>
-                              <span className="features-count">
-                                {Array.from(selectedFeatures).filter(key => {
-                                  return module.children?.some(child => child.key === key);
-                                }).length} features selected
-                              </span>
-                              <button 
-                                className="clear-link" 
-                                onClick={() => {
-                                  if (module.children) {
-                                    const updates = module.children.map(child => ({
-                                      roleId: selectedRole.id,
-                                      moduleKey: child.key,
-                                      access: 'NONE'
-                                    }));
-                                    const newPermissions = { ...permissions };
-                                    module.children.forEach(child => {
-                                      newPermissions[child.key] = 'NONE';
-                                    });
-                                    setPermissions(newPermissions);
-                                    updateSelectedFeatures(newPermissions);
-                                    permissionService.bulkUpdate(updates).then(() => {
-                                      success('Module permissions cleared');
-                                    }).catch(() => {
-                                      showError('Failed to clear permissions');
-                                      loadPermissionsForRole(selectedRole.id);
-                                    });
-                                  }
-                                }}
-                              >
-                                x Clear
-                              </button>
+                              <label className="select-all-checkbox">
+                                <input
+                                  type="checkbox"
+                                  checked={allFullAccess}
+                                  onChange={(e) => handleSelectAllFullAccess(module, e.target.checked)}
+                                />
+                                <span>Select all screens for Full Access</span>
+                              </label>
                             </div>
                           </div>
                         )}
