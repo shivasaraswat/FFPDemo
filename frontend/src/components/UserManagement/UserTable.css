@@ -1,77 +1,68 @@
-.table-container {
-  background: #ffffff;
-  border-radius: 8px;
+.users-table-wrapper {
+  background: white;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
 }
 
-.cft-table {
+.users-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background: white;
 }
 
-.cft-table thead {
+.users-table thead {
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.cft-table th {
+.users-table th {
   padding: 1rem;
   text-align: left;
   font-size: 0.75rem;
   font-weight: 600;
   color: #374151;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
-  white-space: nowrap;
+  letter-spacing: 0.05em;
 }
 
-.sort-icon {
-  margin-left: 0.5rem;
-  color: #9ca3af;
-  vertical-align: middle;
-  cursor: pointer;
-}
-
-.cft-table tbody tr {
+.users-table tbody tr {
   border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s;
 }
 
-.cft-table tbody tr:hover {
+.users-table tbody tr:hover {
   background: #f9fafb;
 }
 
-.cft-table tbody tr.inactive-row {
+.users-table tbody tr.user-inactive {
   opacity: 0.7;
 }
 
-.cft-table tbody tr.inactive-row:hover {
-  background: #fef3c7;
+.users-table tbody tr.user-inactive:hover {
   opacity: 1;
 }
 
-.cft-table td {
+.users-table td {
   padding: 1rem;
   font-size: 0.875rem;
   color: #374151;
 }
 
-.name-cell {
+.user-name {
   font-weight: 500;
   color: #1f2937;
 }
 
-.email-cell {
+.user-email {
   color: #6b7280;
 }
 
-.language-cell {
-  text-transform: uppercase;
+.user-role {
+  color: #374151;
+}
+
+.user-language {
   font-size: 0.75rem;
+  text-transform: uppercase;
   color: #6b7280;
   font-weight: 500;
 }
@@ -79,102 +70,95 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.status-badge.status-active {
+.status-active {
   background: #d1fae5;
   color: #065f46;
 }
 
-.status-badge.status-inactive {
-  background: #fee2e2;
-  color: #991b1b;
+.status-deactivated {
+  background: #e5e7eb;
+  color: #6b7280;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+.user-action {
+  position: relative;
 }
 
-.action-btn {
-  width: 32px;
-  height: 32px;
+.action-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.action-menu-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #6b7280;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  transition: color 0.2s;
+}
+
+.action-menu-button:hover {
+  color: #374151;
+}
+
+.action-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  background: white;
+  border: none;
+  font-size: 0.875rem;
+  color: #374151;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: transparent;
-  color: #dc2626;
-  padding: 0;
+  transition: background-color 0.2s;
 }
 
-.action-btn:hover {
-  background: #fee2e2;
+.menu-item:hover {
+  background: #f9fafb;
 }
 
-.action-btn:active {
-  transform: scale(0.95);
-}
-
-.edit-btn {
+.menu-item-danger {
   color: #dc2626;
 }
 
-.edit-btn:hover {
-  background: #fee2e2;
+.menu-item-danger:hover {
+  background: #fef2f2;
 }
 
-.activate-btn {
-  color: #059669;
-}
-
-.activate-btn:hover {
-  background: #d1fae5;
-}
-
-.deactivate-btn {
-  color: #dc2626;
-}
-
-.deactivate-btn:hover {
-  background: #fee2e2;
-}
-
-.delete-btn {
-  color: #dc2626;
-}
-
-.delete-btn:hover {
-  background: #fee2e2;
-}
-
-.no-data-message {
+.users-table-empty {
   text-align: center;
   padding: 3rem;
   color: #6b7280;
-  background-color: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
 }
 
-.no-data-message p {
+.users-table-empty p {
   margin: 0;
   font-size: 1rem;
   font-weight: 500;
-}
-
-@media (max-width: 768px) {
-  .table-container {
-    overflow-x: auto;
-  }
 }

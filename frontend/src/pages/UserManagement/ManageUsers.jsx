@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/userService';
 import { roleService } from '../../services/roleService';
 import UserTable from '../../components/UserManagement/UserTable';
@@ -6,9 +7,12 @@ import UserForm from '../../components/UserManagement/UserForm';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { useSnackbar } from '../../context/SnackbarContext';
 import '../Common.css';
+import './ManageUsers.css';
 
 const ManageUsers = () => {
+  const navigate = useNavigate();
   const { success, error: showError } = useSnackbar();
+  const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +21,7 @@ const ManageUsers = () => {
   const [formKey, setFormKey] = useState(0);
   const [searchInput, setSearchInput] = useState(''); // Separate state for input
   const [filters, setFilters] = useState({
-    roleId: '',
+    status: 'all', // 'all', 'active', 'deactivated'
     search: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,12 +57,20 @@ const ManageUsers = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      const filterParams = {
+        ...(filters.search && { search: filters.search })
+      };
+      
+      // Add status filter if not 'all'
+      if (filters.status === 'active') {
+        filterParams.isActive = true;
+      } else if (filters.status === 'deactivated') {
+        filterParams.isActive = false;
+      }
+      // If 'all', don't add isActive filter to get all users
+      
       const [usersData, rolesData] = await Promise.all([
-        userService.getAll({ 
-          isActive: true, // Only show active users by default
-          ...(filters.roleId && { roleId: parseInt(filters.roleId) }),
-          ...(filters.search && { search: filters.search })
-        }),
+        userService.getAll(filterParams),
         roleService.getAll()
       ]);
       setUsers(usersData);
@@ -130,6 +142,16 @@ const ManageUsers = () => {
     }
   };
 
+  const handleActivate = async (id) => {
+    try {
+      await userService.activate(id);
+      success('User activated successfully');
+      loadData();
+    } catch (error) {
+      showError(error.response?.data?.error || 'Failed to activate user');
+    }
+  };
+
   const handleFormSubmit = async (userData) => {
     try {
       if (editingUser) {
@@ -156,7 +178,7 @@ const ManageUsers = () => {
 
   const handleClear = () => {
     setSearchInput('');
-    setFilters({ roleId: '', search: '' });
+    setFilters({ status: 'all', search: '' });
     setCurrentPage(1);
   };
 
@@ -169,140 +191,139 @@ const ManageUsers = () => {
 
   if (loading) {
     return (
-      <div className="p-0 min-h-[calc(100vh-0px)] bg-transparent w-full">
+      <div className="manage-users-container">
         <div className="text-center py-8 text-gray-600">Loading users...</div>
       </div>
     );
   }
 
   return (
-    <div className="">
-      <style>{`
-        .user-table-container::-webkit-scrollbar {
-          display: none !important;
-          width: 0 !important;
-          height: 0 !important;
-        }
-        .user-table-container {
-          -ms-overflow-style: none !important;
-          scrollbar-width: none !important;
-        }
-      `}</style>
-      <div className="bg-white rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
-            Manage Users
-            <span className="text-gray-400 ml-1.5 font-normal">({totalRecords} Records)</span>
-          </h2>
-          <button 
-            className="flex items-center gap-1.5 px-4 py-2
-             border border-[var(--Strokes-Primary,#D80C0C)]
-             rounded-lg bg-white
-             text-[var(--Strokes-Primary,#D80C0C)]
-             shadow-[0px_1px_2px_0px_#0000000D] border-common hover:bg-[#fff3f3]"
-            onClick={handleAdd}
-          >
-            <span>+</span>
-            Create New User
-          </button>
-        </div>
-  
-        {/* Controls */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Search Input */}
-            <div className="relative flex items-center">
-              {/* <svg className="absolute left-3 text-gray-400 pointer-events-none z-10" width="18" height="25" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div className="manage-users-container">
+      {/* Header */}
+      <div className="page-header">
+        <h1>User Management</h1>
+      </div>
+
+      {/* Tabs */}
+      <div className="user-management-tabs">
+        <button
+          className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('roles');
+            navigate('/user-management/manage-roles');
+          }}
+        >
+          Manage Roles
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+          onClick={() => setActiveTab('users')}
+        >
+          Manage Users
+        </button>
+      </div>
+
+      {activeTab === 'users' && (
+        <div className="manage-users-content">
+          {/* Header Section */}
+          <div className="users-header-section">
+            <h2 className="users-subheading">
+              Manage Users ({totalRecords} Users)
+            </h2>
+            <button 
+              className="new-user-button"
+              onClick={handleAdd}
+            >
+              + New User
+            </button>
+          </div>
+
+          {/* Search and Filter Controls */}
+          <div className="users-controls">
+            <div className="search-container">
+              <svg className="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                 <path d="M15 15L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg> */}
+              </svg>
               <input
                 type="text"
-                placeholder="Search by name or email"
+                placeholder="Search by user name"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
-                className="w-60 h-18 px-4 pl-10 border border-gray-300 rounded-lg text-sm bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10 placeholder:text-gray-400"
+                className="search-input"
               />
             </div>
             
-            {/* Role Dropdown */}
+            {/* Status Dropdown */}
             <select
-              className="w-60 h-18 px-4 pr-10 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium cursor-pointer transition-all duration-200 appearance-none bg-[url('data:image/svg+xml,%3Csvg_width=\'12\'_height=\'8\'_viewBox=\'0_0_12_8\'_fill=\'none\'_xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath_d=\'M1_1L6_6L11_1\'_stroke=\'%236b7280\'_stroke-width=\'1.5\'_stroke-linecap=\'round\'_stroke-linejoin=\'round\'/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center] hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:border-danger focus:ring-2 focus:ring-danger/10"
-              value={filters.roleId}
-              onChange={e => setFilters({...filters, roleId: e.target.value})}
+              className="status-select"
+              value={filters.status}
+              onChange={e => setFilters({...filters, status: e.target.value})}
             >
-              <option value="" className="text-gray-400">All Roles</option>
-              {roles.map(r => (
-                <option key={r.id} value={r.id}>{r.name}</option>
-              ))}
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="deactivated">Deactivated</option>
             </select>
             
             {/* Clear Button */}
             <button 
-              className="h-18 px-4 border border-[#ff3b3b] text-[#ff3b3b] bg-white rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-[#fff3f3] border-common"
+              className="clear-button"
               onClick={handleClear}
             >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               Clear
             </button>
           </div>
-        </div>
   
-        {/* Table */}
-        <div 
-          className="border border-gray-200 rounded-lg overflow-hidden user-table-container" 
-          style={{ 
-            height: 'calc(100vh - 370px)', 
-            overflowY: 'auto',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
-        >
-          <UserTable
-            users={displayedUsers}
-            roles={roles}
-            onEdit={handleEdit}
-            onDeactivate={handleDeactivate}
-            onDelete={handleDelete}
-          />
-        </div>
-  
-        {/* Footer with Results Count and Pagination */}
-        <div className="flex justify-between items-center mt-4">
-          {totalRecords > 0 && (
-            <span className="text-gray-500 text-sm">
-              Showing {Math.min(endIndex, totalRecords)} results out of {totalRecords}
-            </span>
-          )}
-          {totalRecords === 0 && <div></div>}
-          {totalRecords > 0 && (
-            <div className="flex gap-2 items-center">
-              <button className="w-8 h-8 border border-gray-300 bg-white rounded-md text-sm font-medium text-gray-700 flex items-center justify-center" style={{ border: '0.8px solid #D1D5DC' }}>
-                {currentPage}
-              </button>
-              <span className="text-sm text-gray-700">of {totalPages}</span>
-              <div className="flex border border-gray-300 rounded-md overflow-hidden">
-                <button
-                  className="w-8 h-8 bg-white border-r border-gray-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white text-sm font-medium flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(p => p - 1)}
-                >
-                  ‹
+          {/* Table */}
+          <div className="users-table-container">
+            <UserTable
+              users={displayedUsers}
+              roles={roles}
+              onEdit={handleEdit}
+              onActivate={handleActivate}
+              onDeactivate={handleDeactivate}
+              onDelete={handleDelete}
+            />
+          </div>
+    
+          {/* Footer with Results Count and Pagination */}
+          <div className="users-footer">
+            {totalRecords > 0 && (
+              <span className="results-count">
+                Showing {Math.min(endIndex, totalRecords)} results out of {totalRecords}
+              </span>
+            )}
+            {totalRecords === 0 && <div></div>}
+            {totalRecords > 0 && (
+              <div className="pagination-controls">
+                <button className="page-number" style={{ border: '0.8px solid #D1D5DC' }}>
+                  {currentPage}
                 </button>
-                <button
-                  className="w-8 h-8 bg-gray-100 cursor-pointer text-sm rounded-none font-medium flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(p => p + 1)}
-                >
-                  ›
-                </button>
+                <span className="page-of">of {totalPages}</span>
+                <div className="pagination-buttons">
+                  <button
+                    className="page-nav prev"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => p - 1)}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className="page-nav next"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    ›
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+      )}
 
         {/* UserForm Modal */}
         {showForm && (
@@ -328,10 +349,8 @@ const ManageUsers = () => {
           cancelText="Cancel"
           type={confirmModal.type === 'delete' ? 'danger' : 'warning'}
         />
-      </div>
     </div>
   );
-  
 };
 
 export default ManageUsers;

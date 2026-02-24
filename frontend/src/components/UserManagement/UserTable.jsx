@@ -1,7 +1,23 @@
-import React from 'react';
-import { HiPencil, HiXCircle, HiCheckCircle, HiTrash } from 'react-icons/hi';
+import React, { useState, useRef, useEffect } from 'react';
+import './UserTable.css';
 
 const UserTable = ({ users, roles, onEdit, onActivate, onDeactivate, onDelete }) => {
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRefs = useRef({});
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]);
+
   const getRoleName = (roleId) => {
     const role = roles.find(r => r.id === roleId);
     return role ? role.name : 'Unknown';
@@ -9,88 +25,102 @@ const UserTable = ({ users, roles, onEdit, onActivate, onDeactivate, onDelete })
 
   const getStatusBadge = (isActive) => {
     return (
-      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold uppercase ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-        {isActive ? 'Active' : 'Inactive'}
+      <span className={`status-badge ${isActive ? 'status-active' : 'status-deactivated'}`}>
+        {isActive ? 'Active' : 'Deactivated'}
       </span>
     );
   };
 
+  const toggleMenu = (userId) => {
+    setOpenMenuId(openMenuId === userId ? null : userId);
+  };
+
+  const handleMenuAction = (action, user) => {
+    setOpenMenuId(null);
+    if (action === 'edit') {
+      onEdit(user);
+    } else if (action === 'deactivate') {
+      onDeactivate(user.id);
+    } else if (action === 'activate') {
+      onActivate(user.id);
+    } else if (action === 'delete') {
+      onDelete(user.id);
+    }
+  };
+
   if (users.length === 0) {
     return (
-      <div className="text-center py-12 text-text-secondary bg-bg-secondary rounded-lg border border-border">
-        <p className="m-0 text-base font-medium">No users found.</p>
+      <div className="users-table-empty">
+        <p>No users found.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm mb-6 max-md:overflow-x-auto">
-      <table className="w-full border-collapse bg-white">
-        <thead className="bg-bg-secondary border-b border-border sticky top-0 z-10">
+    <div className="users-table-wrapper">
+      <table className="users-table">
+        <thead>
           <tr>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">
-              Name
-            </th>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">
-              Email
-            </th>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">
-              Role
-            </th>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">
-              Language
-            </th>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">
-              Status
-            </th>
-            <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative whitespace-nowrap">Actions</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Language</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {users.map(user => (
-            <tr key={user.id} className={`border-b border-gray-100 transition-colors duration-200 hover:bg-bg-secondary ${!user.isActive ? 'opacity-70 hover:opacity-100' : ''}`}>
-              <td className="px-4 py-4 text-sm font-medium text-text-primary">{user.name}</td>
-              <td className="px-4 py-4 text-sm text-gray-500">{user.email}</td>
-              <td className="px-4 py-4 text-sm text-gray-700">{getRoleName(user.roleId)}</td>
-              <td className="px-4 py-4 text-xs uppercase text-gray-500 font-medium">{user.language?.toUpperCase() || 'EN'}</td>
-              <td className="px-4 py-4 text-sm text-gray-700">{getStatusBadge(user.isActive)}</td>
-              <td className="px-4 py-4 text-sm text-gray-700">
-                <div className="flex gap-3 items-center">
+            <tr key={user.id} className={!user.isActive ? 'user-inactive' : ''}>
+              <td className="user-name">{user.name}</td>
+              <td className="user-email">{user.email}</td>
+              <td className="user-role">{getRoleName(user.roleId)}</td>
+              <td className="user-language">{user.language?.toUpperCase() || 'EN'}</td>
+              <td className="user-status">{getStatusBadge(user.isActive)}</td>
+              <td className="user-action">
+                <div className="action-menu-container" ref={el => menuRefs.current[user.id] = el}>
                   <button
-                    className="flex items-center justify-center cursor-pointer transition-all duration-200 bg-transparent border-none p-1 text-gray-400 hover:text-blue-600"
-                    onClick={() => onEdit(user)}
-                    title="Edit"
-                    aria-label="Edit user"
+                    className="action-menu-button"
+                    onClick={() => toggleMenu(user.id)}
+                    aria-label="Actions"
                   >
-                    <HiPencil size={20} />
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="8" cy="4" r="1.5" fill="currentColor"/>
+                      <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+                      <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
+                    </svg>
                   </button>
-                  {user.isActive ? (
-                    <button
-                      className="flex items-center justify-center cursor-pointer transition-all duration-200 bg-transparent border-none p-1 text-gray-400 hover:text-orange-600"
-                      onClick={() => onDeactivate(user.id)}
-                      title="Deactivate"
-                      aria-label="Deactivate user"
-                    >
-                      <HiXCircle size={20} />
-                    </button>
-                  ) : (
-                    <button
-                      className="flex items-center justify-center cursor-pointer transition-all duration-200 bg-transparent border-none p-1 text-gray-400 hover:text-green-600"
-                      onClick={() => onActivate(user.id)}
-                      title="Activate"
-                      aria-label="Activate user"
-                    >
-                      <HiCheckCircle size={20} />
-                    </button>
+                  {openMenuId === user.id && (
+                    <div className="action-menu-dropdown">
+                      <button
+                        className="menu-item"
+                        onClick={() => handleMenuAction('edit', user)}
+                      >
+                        Edit
+                      </button>
+                      {user.isActive ? (
+                        <button
+                          className="menu-item"
+                          onClick={() => handleMenuAction('deactivate', user)}
+                        >
+                          Deactivate
+                        </button>
+                      ) : (
+                        <button
+                          className="menu-item"
+                          onClick={() => handleMenuAction('activate', user)}
+                        >
+                          Activate
+                        </button>
+                      )}
+                      <button
+                        className="menu-item menu-item-danger"
+                        onClick={() => handleMenuAction('delete', user)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
-                  <button
-                    className="flex items-center justify-center cursor-pointer transition-all duration-200 bg-transparent border-none p-1 text-gray-400 hover:text-red-600"
-                    onClick={() => onDelete(user.id)}
-                    title="Delete"
-                    aria-label="Delete user"
-                  >
-                    <HiTrash size={20} />
-                  </button>
                 </div>
               </td>
             </tr>
