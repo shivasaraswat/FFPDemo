@@ -9,6 +9,7 @@
   border-radius: 10px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: calc(100vh - 160px);
 }
 
 .user-management-wrapper .page-header h1 {
@@ -53,15 +54,25 @@
 
 .manage-roles-content {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   padding: 0;
 }
 
 .roles-list-column {
   width: 250px;
   flex-shrink: 0;
-  border-right: 1px solid #e5e7eb;
+  /* border-right: 1px solid #e5e7eb; */
   padding-right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.roles-list-column h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .roles-list {
@@ -99,6 +110,10 @@
   gap: 1rem;
 }
 
+.modules-column .new-role-button {
+  align-self: flex-end;
+}
+
 .modules-header {
   display: flex;
   justify-content: space-between;
@@ -115,21 +130,20 @@
 }
 
 .new-role-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--Strokes-Primary, #D80C0C);
-  color: #FF0000;
-  border-radius: 8px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--Strokes-Primary, #D80C0C);
+    color: #FF0000;
+    border-radius: 8px;
 }
 
 .new-role-button:hover {
-  background: #b80707;
+  background: #fff3f3;
 }
 
 .modules-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  overflow-y: auto;
   flex: 1;
 }
 

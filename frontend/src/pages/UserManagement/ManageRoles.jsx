@@ -288,6 +288,9 @@ const ManageRoles = () => {
           <div className="manage-roles-content">
           {/* Left Column - Role List */}
           <div className="roles-list-column">
+            <h2>
+              Manage Role ({modules.length} Modules)
+            </h2>
             <div className="roles-list">
               {roles.map(role => (
                 <div
@@ -303,17 +306,12 @@ const ManageRoles = () => {
 
           {/* Right Column - Module Management */}
           <div className="modules-column">
-            <div className="modules-header">
-              <h2>
-                Manage Role ({modules.length} Modules)
-              </h2>
-              <button 
-                className="new-role-button"
-                onClick={handleAddRole}
-              >
-                + New Role
-              </button>
-            </div>
+            <button 
+              className="new-role-button"
+              onClick={handleAddRole}
+            >
+              + New Role
+            </button>
 
             {selectedRole && (
               <>

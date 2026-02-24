@@ -9,8 +9,8 @@
   border-radius: 10px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  height: calc(100vh - 160px) !important;
-}
+  min-height: calc(100vh - 160px);
+}image.png
 
 .user-management-wrapper .page-header h1 {
   color: #000000 !important;
@@ -78,7 +78,7 @@
 }
 
 .new-user-button:hover {
-  background: #b80707;
+  background: #fff3f3;
 }
 
 .users-controls {
