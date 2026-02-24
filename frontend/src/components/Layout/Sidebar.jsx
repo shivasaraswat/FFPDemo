@@ -168,6 +168,47 @@ const Sidebar = () => {
           </div>
           {!isCollapsed && <h2>Field Fix Portal</h2>}
         </div>
+        <button 
+          className="collapse-button"
+          onClick={toggleSidebar}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 20 20" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Square with rounded corners */}
+            <rect 
+              x="2" 
+              y="2" 
+              width="16" 
+              height="16" 
+              rx="2" 
+              stroke="currentColor" 
+              strokeWidth="1.5" 
+              fill="none"
+            />
+            {/* Thin vertical rectangle on the left */}
+            <rect 
+              x="5" 
+              y="6" 
+              width="2" 
+              height="8" 
+              fill="currentColor"
+            />
+            {/* Left-pointing chevron on the right */}
+            <path 
+              d="M13 10L10 7M13 10L10 13" 
+              stroke="currentColor" 
+              strokeWidth="1.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
       
       <nav className="sidebar-nav">
@@ -183,31 +224,6 @@ const Sidebar = () => {
           </Link>
         ))}
       </nav>
-      
-      <div className="sidebar-footer">
-        <button 
-          className="collapse-button"
-          onClick={toggleSidebar}
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <svg 
-            width="16" 
-            height="16" 
-            viewBox="0 0 16 16" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            className={isCollapsed ? 'rotated' : ''}
-          >
-            <path 
-              d="M10 12L6 8L10 4" 
-              stroke="currentColor" 
-              strokeWidth="1.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
     </div>
   );
 };

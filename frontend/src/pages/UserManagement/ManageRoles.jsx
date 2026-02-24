@@ -259,32 +259,33 @@ const ManageRoles = () => {
 
   return (
     <div className="manage-roles-container">
-      {/* Header */}
-      <div className="page-header">
-        <h1>User Management</h1>
-      </div>
+      <div className="user-management-wrapper">
+        {/* Header */}
+        <div className="page-header">
+          <h1>User Management</h1>
+        </div>
 
-      {/* Tabs */}
-      <div className="user-management-tabs">
-        <button
-          className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`}
-          onClick={() => setActiveTab('roles')}
-        >
-          Manage Roles
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('users');
-            navigate('/user-management/manage-users');
-          }}
-        >
-          Manage Users
-        </button>
-      </div>
+        {/* Tabs */}
+        <div className="user-management-tabs">
+          <button
+            className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`}
+            onClick={() => setActiveTab('roles')}
+          >
+            Manage Roles
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('users');
+              navigate('/user-management/manage-users');
+            }}
+          >
+            Manage Users
+          </button>
+        </div>
 
-      {activeTab === 'roles' && (
-        <div className="manage-roles-content">
+        {activeTab === 'roles' && (
+          <div className="manage-roles-content">
           {/* Left Column - Role List */}
           <div className="roles-list-column">
             <div className="roles-list">
@@ -443,7 +444,8 @@ const ManageRoles = () => {
             )}
           </div>
         </div>
-      )}
+        )}
+      </div>
 
       <AddRoleModal
         isOpen={isModalOpen}

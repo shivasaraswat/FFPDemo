@@ -1,8 +1,23 @@
 .manage-roles-container {
   padding: 0;
-  min-height: calc(100vh - 0px);
+  min-height: calc(100vh - 500px);
   background: transparent;
   width: 100%;
+}
+
+.user-management-wrapper {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.user-management-wrapper .page-header h1 {
+  color: #000000 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #000000 !important;
+  background-clip: unset !important;
 }
 
 .user-management-tabs {
@@ -40,10 +55,7 @@
 .manage-roles-content {
   display: flex;
   gap: 1.5rem;
-  background: white;
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 0;
   min-height: calc(100vh - 250px);
 }
 
@@ -76,10 +88,10 @@
 }
 
 .role-item.selected {
-  background: #D80C0C;
-  color: white;
-  font-weight: 500;
-  border-color: #D80C0C;
+    background: var(--Backgrounds-Active, #FFF3F3);
+    border-bottom: 1px solid var(--Strokes-Primary, #D80C0C);
+    color: #D80C0C;
+    font-weight: 500;
 }
 
 .modules-column {
@@ -106,14 +118,9 @@
 
 .new-role-button {
   padding: 0.5rem 1rem;
-  background: #D80C0C;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  border: 1px solid var(--Strokes-Primary, #D80C0C);
+  color: #FF0000;
+  border-radius: 8px;
 }
 
 .new-role-button:hover {

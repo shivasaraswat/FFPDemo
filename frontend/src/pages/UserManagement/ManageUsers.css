@@ -5,6 +5,21 @@
   width: 100%;
 }
 
+.user-management-wrapper {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.user-management-wrapper .page-header h1 {
+  color: #000000 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #000000 !important;
+  background-clip: unset !important;
+}
+
 .user-management-tabs {
   display: flex;
   gap: 0;
@@ -38,10 +53,7 @@
 }
 
 .manage-users-content {
-  background: white;
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 0;
 }
 
 .users-header-section {
@@ -60,14 +72,9 @@
 
 .new-user-button {
   padding: 0.5rem 1rem;
-  background: #D80C0C;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  border: 1px solid var(--Strokes-Primary, #D80C0C);
+  color: #FF0000;
+  border-radius: 8px;
 }
 
 .new-user-button:hover {

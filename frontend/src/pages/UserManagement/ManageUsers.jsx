@@ -199,32 +199,33 @@ const ManageUsers = () => {
 
   return (
     <div className="manage-users-container">
-      {/* Header */}
-      <div className="page-header">
-        <h1>User Management</h1>
-      </div>
+      <div className="user-management-wrapper">
+        {/* Header */}
+        <div className="page-header">
+          <h1>User Management</h1>
+        </div>
 
-      {/* Tabs */}
-      <div className="user-management-tabs">
-        <button
-          className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('roles');
-            navigate('/user-management/manage-roles');
-          }}
-        >
-          Manage Roles
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          Manage Users
-        </button>
-      </div>
+        {/* Tabs */}
+        <div className="user-management-tabs">
+          <button
+            className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('roles');
+              navigate('/user-management/manage-roles');
+            }}
+          >
+            Manage Roles
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            Manage Users
+          </button>
+        </div>
 
-      {activeTab === 'users' && (
-        <div className="manage-users-content">
+        {activeTab === 'users' && (
+          <div className="manage-users-content">
           {/* Header Section */}
           <div className="users-header-section">
             <h2 className="users-subheading">
@@ -323,7 +324,8 @@ const ManageUsers = () => {
             )}
           </div>
         </div>
-      )}
+        )}
+      </div>
 
         {/* UserForm Modal */}
         {showForm && (
