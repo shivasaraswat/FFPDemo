@@ -50,6 +50,7 @@ import ArchivedFieldFixProgress from './pages/FieldFixProgress/ArchivedFieldFix'
 // User Management pages
 import UserManagement from './pages/UserManagement/UserManagement';
 import ManageUsers from './pages/UserManagement/ManageUsers';
+import ManageRoles from './pages/UserManagement/ManageRoles';
 import DeactivatedUsers from './pages/UserManagement/DeactivatedUsers';
 import ApiRegistryManagement from './pages/UserManagement/ApiRegistryManagement';
 
@@ -130,7 +131,7 @@ const AppRoutes = () => {
       {/* User Management Routes */}
       <Route path="/user-management" element={<ProtectedRoute><Layout><UserManagement /></Layout></ProtectedRoute>} />
       <Route path="/user-management/manage-users" element={<ProtectedRoute requiredPermission="MANAGE_USERS" requiredLevel="read_only"><Layout><ManageUsers /></Layout></ProtectedRoute>} />
-      <Route path="/user-management/manage-roles" element={<ProtectedRoute requiredPermission="MANAGE_ROLES" requiredLevel="read_only"><Layout><RoleManagement /></Layout></ProtectedRoute>} />
+      <Route path="/user-management/manage-roles" element={<ProtectedRoute requiredPermission="MANAGE_ROLES" requiredLevel="read_only"><Layout><ManageRoles /></Layout></ProtectedRoute>} />
       <Route path="/user-management/deactivated-users" element={<ProtectedRoute requiredPermission="DEACTIVATED_USERS" requiredLevel="read_only"><Layout><DeactivatedUsers /></Layout></ProtectedRoute>} />
       
       {/* API Registry Route - Standalone (accessible to all authenticated users) */}
