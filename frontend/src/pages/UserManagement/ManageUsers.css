@@ -111,15 +111,19 @@
 .search-icon {
   position: absolute;
   left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: #9ca3af;
   pointer-events: none;
   z-index: 1;
+  width: 18px;
+  height: 18px;
 }
 
 .search-input {
   width: 240px;
   height: 2.5rem;
-  padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+  padding: 0.5rem 0.75rem 0.5rem 2.75rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -181,16 +185,10 @@
 }
 
 .clear-button {
-  height: 2.5rem;
-  padding: 0 1rem;
-  border: 1px solid #D80C0C;
-  color: #D80C0C;
-  background: white;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--Strokes-Primary, #D80C0C);
+  color: #FF0000;
+  border-radius: 8px;
 }
 
 .clear-button:hover {

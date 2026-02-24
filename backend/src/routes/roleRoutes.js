@@ -6,7 +6,8 @@ const roleController = require('../controllers/roleController');
 // Validation rules
 const createValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('code').trim().notEmpty().withMessage('Code is required'),
+  body('code').optional().trim(), // Code is now auto-generated, optional
+  body('referenceRoleId').optional().isInt().withMessage('Reference role ID must be an integer'),
   body('description').optional().trim(),
   body('isSystemRole').optional().isBoolean()
 ];

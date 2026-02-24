@@ -159,12 +159,12 @@ input[type="time"],
 select,
 textarea {
   width: 100%;
-  padding: 0.875rem 1rem;
+  /* padding: 0.875rem 1rem; */
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  background: #f9fafb;
+  /* background: #f9fafb; */
   color: #1f2937;
   font-family: inherit;
 }
