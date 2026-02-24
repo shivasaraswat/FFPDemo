@@ -16,7 +16,8 @@ const createValidation = [
   body('iamShortId').optional().trim(),
   body('ssoId').optional().trim().isLength({ max: 255 }).withMessage('SSO ID must be at most 255 characters'),
   body('address').optional().trim(),
-  body('region').optional().trim().isLength({ max: 100 }).withMessage('Region must be at most 100 characters'),
+  body('region').optional().isArray().withMessage('Region must be an array'),
+  body('region.*').optional().trim().isLength({ max: 100 }).withMessage('Each region must be at most 100 characters'),
   // Custom validation: at least roleId or roleIds must be provided
   body().custom((value) => {
     if (!value.roleId && (!value.roleIds || value.roleIds.length === 0)) {
@@ -38,7 +39,8 @@ const updateValidation = [
   body('iamShortId').optional().trim(),
   body('ssoId').optional().trim().isLength({ max: 255 }).withMessage('SSO ID must be at most 255 characters'),
   body('address').optional().trim(),
-  body('region').optional().trim().isLength({ max: 100 }).withMessage('Region must be at most 100 characters'),
+  body('region').optional().isArray().withMessage('Region must be an array'),
+  body('region.*').optional().trim().isLength({ max: 100 }).withMessage('Each region must be at most 100 characters'),
   body('isActive').optional().isBoolean()
 ];
 

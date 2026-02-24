@@ -141,26 +141,27 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
   const rcGdRoles = roles.filter(r => r.code === 'RC' || r.code === 'GD');
   const otherRoles = roles.filter(r => r.code !== 'RC' && r.code !== 'GD');
 
-  // Region options for dropdown - only 4 regions
+  // Region options for multiselect - only 4 regions
   const regionOptions = [
-    { value: '', label: 'Select a region' },
     { value: 'North America', label: 'North America' },
     { value: 'Europe', label: 'Europe' },
     { value: 'Asia Pacific', label: 'Asia Pacific' },
     { value: 'Middle East', label: 'Middle East' }
   ];
 
-  // Country options based on region
-  const getCountriesByRegion = (region) => {
+  // Country options based on regions (array)
+  const getCountriesByRegions = (regions) => {
+    if (!regions || !Array.isArray(regions) || regions.length === 0) {
+      return [];
+    }
+
     const countryMap = {
       'North America': [
-        { value: '', label: 'Select a country' },
         { value: 'USA', label: 'United States' },
         { value: 'Canada', label: 'Canada' },
         { value: 'Mexico', label: 'Mexico' }
       ],
       'Europe': [
-        { value: '', label: 'Select a country' },
         { value: 'UK', label: 'United Kingdom' },
         { value: 'Germany', label: 'Germany' },
         { value: 'France', label: 'France' },
@@ -168,7 +169,6 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         { value: 'Spain', label: 'Spain' }
       ],
       'Asia Pacific': [
-        { value: '', label: 'Select a country' },
         { value: 'Japan', label: 'Japan' },
         { value: 'China', label: 'China' },
         { value: 'India', label: 'India' },
@@ -177,14 +177,29 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         { value: 'South Korea', label: 'South Korea' }
       ],
       'Middle East': [
-        { value: '', label: 'Select a country' },
         { value: 'UAE', label: 'United Arab Emirates' },
         { value: 'Saudi Arabia', label: 'Saudi Arabia' },
         { value: 'Qatar', label: 'Qatar' },
         { value: 'Kuwait', label: 'Kuwait' }
       ]
     };
-    return countryMap[region] || [];
+
+    // Get union of all countries from all selected regions
+    const allCountries = new Set();
+    const countryLabelMap = {};
+    
+    regions.forEach(region => {
+      const countries = countryMap[region] || [];
+      countries.forEach(country => {
+        allCountries.add(country.value);
+        countryLabelMap[country.value] = country.label;
+      });
+    });
+
+    // Convert to array of options, sorted by label
+    return Array.from(allCountries)
+      .map(value => ({ value, label: countryLabelMap[value] }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   };
 
   // Initialize with empty form data
@@ -196,7 +211,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     nonRcGdRoleId: '',
     iamShortId: '',
     address: '',
-    region: '',
+    region: [],
     country: [],
     language: 'en'
   });
@@ -219,7 +234,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         nonRcGdRoleId: '',
         iamShortId: '',
         address: '',
-        region: '',
+        region: [],
         country: [],
         language: 'en'
       });
@@ -253,7 +268,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         nonRcGdRoleId: userOtherRole ? userOtherRole.id : '',
         iamShortId: user.iamShortId || user.ssoId || '',
         address: user.address || '',
-        region: user.region || '',
+        region: Array.isArray(user.regions) ? user.regions : (user.region ? [user.region] : []),
         country: Array.isArray(user.country) ? user.country : (user.country ? [user.country] : []),
         language: user.language || 'en'
       });
@@ -300,8 +315,8 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
 
     // Validate region is required for RC and GD roles
     if (hasRcOrGd) {
-      if (!formData.region || !formData.region.trim()) {
-        newErrors.region = 'Region is required for RC and GD users';
+      if (!formData.region || !Array.isArray(formData.region) || formData.region.length === 0) {
+        newErrors.region = 'At least one region is required for RC and GD users';
       }
     }
 
@@ -348,7 +363,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
           delete submitData[key];
         }
         // Remove region only if it's empty and not required
-        if (key === 'region' && submitData[key] === '' && !isRegionRequired) {
+        if (key === 'region' && (!Array.isArray(submitData[key]) || submitData[key].length === 0) && !isRegionRequired) {
           delete submitData[key];
         }
         // Remove country only if it's empty and not required
@@ -374,7 +389,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       if (value) {
         updatedFormData.roleIds = [];
         // Clear region and country since they're only required for RC/GD
-        updatedFormData.region = '';
+        updatedFormData.region = [];
         updatedFormData.country = [];
       }
     } else if (field === 'roleIds') {
@@ -383,7 +398,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
         updatedFormData.nonRcGdRoleId = '';
       } else {
         // If no RC/GD roles selected, clear region and country
-        updatedFormData.region = '';
+        updatedFormData.region = [];
         updatedFormData.country = [];
       }
     }
@@ -408,8 +423,8 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
       const hasRcOrGd = hasRcRole || hasGdRole;
       
       if (hasRcOrGd) {
-        if (!updatedFormData.region || !updatedFormData.region.trim()) {
-          setErrors({ ...errors, region: 'Region is required for RC and GD users' });
+        if (!updatedFormData.region || !Array.isArray(updatedFormData.region) || updatedFormData.region.length === 0) {
+          setErrors({ ...errors, region: 'At least one region is required for RC and GD users' });
         } else {
           const newErrors = { ...errors };
           delete newErrors.region;
@@ -435,7 +450,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
     if (field === 'region' && updatedFormData.roleIds.length > 0) {
       const selectedRcGdRoles = rcGdRoles.filter(r => updatedFormData.roleIds.includes(r.id));
       const hasRcOrGd = selectedRcGdRoles.length > 0;
-      if (hasRcOrGd && value && value.trim()) {
+      if (hasRcOrGd && value && Array.isArray(value) && value.length > 0) {
         const newErrors = { ...errors };
         delete newErrors.region;
         setErrors(newErrors);
@@ -669,18 +684,20 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                   return (hasRcRole || hasGdRole) && <span className="text-danger font-bold"> *</span>;
                 })()}
               </label>
-              <select
-                id="region"
-                value={formData.region}
-                onChange={(e) => handleChange('region', e.target.value)}
-                className={`py-3.5 px-4 border-2 rounded-lg text-[0.95rem] transition-all duration-300 bg-bg-secondary text-text-primary font-sans hover:border-gray-300 hover:bg-white focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 ${errors.region ? 'border-danger bg-red-50' : 'border-gray-200'}`}
-              >
-                {regionOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <MultiSelect
+                options={regionOptions}
+                value={Array.isArray(formData.region) ? formData.region : []}
+                onChange={(selected) => handleChange('region', selected)}
+                placeholder="Select Regions"
+                disabled={(() => {
+                  const selectedRcGdRoles = rcGdRoles.filter(r => formData.roleIds.includes(r.id));
+                  const hasRcRole = selectedRcGdRoles.some(r => r.code === 'RC');
+                  const hasGdRole = selectedRcGdRoles.some(r => r.code === 'GD');
+                  return !(hasRcRole || hasGdRole);
+                })()}
+                error={errors.region}
+                getOptionLabel={(opt) => opt.label || opt.value}
+              />
               {errors.region && <span className="mt-1 text-sm text-danger">{errors.region}</span>}
             </div>
 
@@ -706,7 +723,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
             
             if (!showGdFields) return null;
             
-            const countryOptions = getCountriesByRegion(formData.region);
+            const countryOptions = getCountriesByRegions(formData.region);
             
             return (
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -719,7 +736,7 @@ const UserForm = ({ user, roles, onSubmit, onCancel }) => {
                     value={Array.isArray(formData.country) ? formData.country : []}
                     onChange={(selected) => handleChange('country', selected)}
                     placeholder="Select Country"
-                    disabled={!formData.region || !formData.region.trim()}
+                    disabled={!formData.region || !Array.isArray(formData.region) || formData.region.length === 0}
                     error={errors.country}
                     getOptionLabel={(opt) => opt.label || opt.value}
                   />

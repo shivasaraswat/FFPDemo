@@ -99,16 +99,49 @@ const ManageRoles = () => {
     });
   };
 
-  const handlePermissionChange = async (moduleKey, accessType) => {
+  const handlePermissionChange = async (moduleKey, accessType, checked) => {
     if (!selectedRole) return;
 
     const currentAccess = permissions[moduleKey] || 'NONE';
     let newAccess = 'NONE';
 
+    // Get current state of both checkboxes
+    const currentIsViewOnly = currentAccess === 'READ';
+    const currentIsFullAccess = currentAccess === 'FULL';
+
     if (accessType === 'full') {
-      newAccess = 'FULL';
+      // Full Access checkbox
+      if (checked) {
+        // When checking Full Access, set to FULL (takes precedence)
+        newAccess = 'FULL';
+      } else {
+        // When unchecking Full Access, check if View Only should be active
+        if (currentIsViewOnly) {
+          newAccess = 'READ';
+        } else {
+          newAccess = 'NONE';
+        }
+      }
     } else if (accessType === 'read') {
-      newAccess = 'READ';
+      // View Only checkbox
+      if (checked) {
+        // When checking View Only, only set to READ if Full Access is not checked
+        if (!currentIsFullAccess) {
+          newAccess = 'READ';
+        } else {
+          // Full Access is checked, keep it as FULL
+          newAccess = 'FULL';
+        }
+      } else {
+        // When unchecking View Only
+        if (currentIsFullAccess) {
+          // If Full Access is checked, keep it as FULL
+          newAccess = 'FULL';
+        } else {
+          // Otherwise set to NONE
+          newAccess = 'NONE';
+        }
+      }
     }
 
     // Update local state immediately
@@ -361,22 +394,20 @@ const ManageRoles = () => {
                               return (
                                 <div key={feature.key} className="feature-row">
                                   <span className="feature-name">{feature.name}</span>
-                                  <div className="permission-radio-group">
-                                    <label className="radio-label">
+                                  <div className="permission-checkbox-group">
+                                    <label className="permission-checkbox-label">
                                       <input
-                                        type="radio"
-                                        name={`permission-${feature.key}`}
-                                        checked={isViewOnly && !isFullAccess}
-                                        onChange={() => handlePermissionChange(feature.key, 'read')}
+                                        type="checkbox"
+                                        checked={isViewOnly}
+                                        onChange={(e) => handlePermissionChange(feature.key, 'read', e.target.checked)}
                                       />
-                                      <span>View Only</span>
+                                      <span>Read Only</span>
                                     </label>
-                                    <label className="radio-label">
+                                    <label className="permission-checkbox-label">
                                       <input
-                                        type="radio"
-                                        name={`permission-${feature.key}`}
+                                        type="checkbox"
                                         checked={isFullAccess}
-                                        onChange={() => handlePermissionChange(feature.key, 'full')}
+                                        onChange={(e) => handlePermissionChange(feature.key, 'full', e.target.checked)}
                                       />
                                       <span>Full Access</span>
                                     </label>

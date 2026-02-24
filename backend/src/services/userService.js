@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const UserRole = require('../models/UserRole');
 const UserCountry = require('../models/UserCountry');
+const UserRegion = require('../models/UserRegion');
 const { hashPassword } = require('../utils/password');
 
 class UserService {
@@ -18,7 +19,7 @@ class UserService {
   }
 
   async create(userData) {
-    const { email, password, iamShortId, roleIds, roleId, country, ...otherData } = userData;
+    const { email, password, iamShortId, roleIds, roleId, country, region, ...otherData } = userData;
 
     // Normalize name field: trim and replace multiple spaces with single space
     if (otherData.name !== undefined) {
@@ -64,8 +65,8 @@ class UserService {
     // Validate region is required for RC and GD roles
     const hasRC = roles.some(r => r.code === 'RC');
     const hasGD = roles.some(r => r.code === 'GD');
-    if ((hasRC || hasGD) && (!otherData.region || otherData.region.trim() === '')) {
-      throw new Error('Region is required for RC and GD users');
+    if ((hasRC || hasGD) && (!region || !Array.isArray(region) || region.length === 0)) {
+      throw new Error('At least one region is required for RC and GD users');
     }
 
     // Validate country for GD role (or when both RC and GD are selected - follow GD behavior)
@@ -75,8 +76,8 @@ class UserService {
         throw new Error('At least one country is required for GD users');
       }
       
-      // Validate countries are valid for the selected region
-      await this.validateCountriesForRegion(otherData.region, country);
+      // Validate countries are valid for the selected regions
+      await this.validateCountriesForRegions(region, country);
     }
 
     // Set primary roleId for backward compatibility (first role or RC/GD priority)
@@ -102,6 +103,13 @@ class UserService {
       await UserRole.add(user.id, roleIdToAssign);
     }
 
+    // Save regions if provided
+    if (hasRC || hasGD) {
+      if (region && Array.isArray(region) && region.length > 0) {
+        await UserRegion.setRegions(user.id, region);
+      }
+    }
+
     // Save countries if provided
     if (hasGD || (hasRC && hasGD)) {
       if (country && Array.isArray(country) && country.length > 0) {
@@ -109,7 +117,7 @@ class UserService {
       }
     }
 
-    // Return user with all roles and countries
+    // Return user with all roles, regions, and countries
     return await User.findById(user.id);
   }
 
@@ -163,8 +171,8 @@ class UserService {
       throw new Error('User not found');
     }
 
-    // Extract country from userData (it's handled separately)
-    const { country, ...otherUserData } = userData;
+    // Extract country and region from userData (they're handled separately)
+    const { country, region, ...otherUserData } = userData;
     userData = otherUserData;
 
     // Normalize name field: trim and replace multiple spaces with single space
@@ -273,10 +281,17 @@ class UserService {
     const currentRoles = await UserRole.findByUser(id);
     const hasRC = currentRoles.some(r => r.roleCode === 'RC');
     const hasGD = currentRoles.some(r => r.roleCode === 'GD');
-    const finalRegion = userData.region !== undefined ? userData.region : user.region;
     
-    if ((hasRC || hasGD) && (!finalRegion || finalRegion.trim() === '')) {
-      throw new Error('Region is required for RC and GD users');
+    // Get final region (from userData if provided, otherwise from existing user)
+    let finalRegion = region;
+    if (finalRegion === undefined) {
+      // Load existing regions from database
+      const existingRegions = await UserRegion.findByUser(id);
+      finalRegion = existingRegions;
+    }
+    
+    if ((hasRC || hasGD) && (!finalRegion || !Array.isArray(finalRegion) || finalRegion.length === 0)) {
+      throw new Error('At least one region is required for RC and GD users');
     }
 
     // Handle country updates for GD role
@@ -286,12 +301,19 @@ class UserService {
         if (!Array.isArray(country) || country.length === 0) {
           throw new Error('At least one country is required for GD users');
         }
-        await this.validateCountriesForRegion(finalRegion, country);
+        await this.validateCountriesForRegions(finalRegion, country);
       }
     }
 
-    // Update user basic fields
-    const updatedUser = await User.update(id, userData);
+    // Update user basic fields (remove region from userData as it's handled separately)
+    const updateData = { ...otherData };
+    delete updateData.region;
+    const updatedUser = await User.update(id, updateData);
+
+    // Update regions if provided
+    if (region !== undefined) {
+      await UserRegion.setRegions(id, region);
+    }
 
     // Update countries if provided
     if (country !== undefined) {
@@ -374,8 +396,8 @@ class UserService {
   }
 
   // Validation helper methods
-  async validateCountriesForRegion(region, countries) {
-    if (!region || !countries || !Array.isArray(countries)) {
+  async validateCountriesForRegions(regions, countries) {
+    if (!regions || !Array.isArray(regions) || regions.length === 0 || !countries || !Array.isArray(countries)) {
       return;
     }
 
@@ -386,11 +408,17 @@ class UserService {
       'Middle East': ['UAE', 'Saudi Arabia', 'Qatar', 'Kuwait']
     };
 
-    const validCountries = validCountriesByRegion[region] || [];
+    // Get union of all valid countries from all selected regions
+    const allValidCountries = new Set();
+    for (const region of regions) {
+      const validCountries = validCountriesByRegion[region] || [];
+      validCountries.forEach(country => allValidCountries.add(country));
+    }
     
+    // Validate each country is valid for at least one of the selected regions
     for (const country of countries) {
-      if (!validCountries.includes(country)) {
-        throw new Error(`Country "${country}" is not valid for region "${region}"`);
+      if (!allValidCountries.has(country)) {
+        throw new Error(`Country "${country}" is not valid for the selected regions: ${regions.join(', ')}`);
       }
     }
   }

@@ -1,6 +1,7 @@
 const pool = require('../config/database');
 const UserRole = require('./UserRole');
 const UserCountry = require('./UserCountry');
+const UserRegion = require('./UserRegion');
 
 class User {
   static async create(userData) {
@@ -52,6 +53,9 @@ class User {
     // Get countries from junction table
     user.country = await UserCountry.findByUser(id);
     
+    // Get regions from junction table
+    user.regions = await UserRegion.findByUser(id);
+    
     return user;
   }
 
@@ -83,6 +87,9 @@ class User {
     // Get countries from junction table
     user.country = await UserCountry.findByUser(user.id);
     
+    // Get regions from junction table
+    user.regions = await UserRegion.findByUser(user.id);
+    
     return user;
   }
 
@@ -113,14 +120,16 @@ class User {
 
     const [rows] = await pool.execute(query, params);
     
-    // Optionally load countries for all users
+    // Optionally load countries and regions for all users
     // This can be expensive for large datasets, so we'll load them
     const usersWithRelations = await Promise.all(
       rows.map(async (user) => {
         const countries = await UserCountry.findByUser(user.id);
+        const regions = await UserRegion.findByUser(user.id);
         return {
           ...user,
-          country: countries
+          country: countries,
+          regions: regions
         };
       })
     );
