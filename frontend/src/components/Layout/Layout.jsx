@@ -31,7 +31,7 @@ const Layout = ({ children }) => {
     <div className="flex">
       <Sidebar />
       <main 
-        className="flex-1 bg-bg-secondary flex flex-col transition-all duration-300 ease-in-out max-md:ml-0"
+        className="flex-1 bg-bg-secondary flex flex-col transition-all duration-300 ease-in-out max-md:ml-0 h-screen"
         style={{ marginLeft: isCollapsed ? '80px' : '280px' }}
       >
         <header className="bg-white px-8 py-4 border-b border-border flex justify-between items-center gap-6 shadow-sm sticky top-0 z-[100]">

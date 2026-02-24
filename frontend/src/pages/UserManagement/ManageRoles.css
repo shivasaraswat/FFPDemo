@@ -1,6 +1,5 @@
 .manage-roles-container {
   padding: 0;
-  min-height: calc(100vh - 500px);
   background: transparent;
   width: 100%;
 }
@@ -56,7 +55,6 @@
   display: flex;
   gap: 1.5rem;
   padding: 0;
-  min-height: calc(100vh - 250px);
 }
 
 .roles-list-column {
