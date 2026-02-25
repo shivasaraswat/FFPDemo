@@ -3,11 +3,7 @@ import './FieldFix.css';
 
 const ReleasedFieldFix = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Released Field Fix</h1>
-        <p className="breadcrumb">Field Fix / Released Field Fix</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Released Field Fixes</h2>

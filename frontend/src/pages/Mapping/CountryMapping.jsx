@@ -3,11 +3,7 @@ import './Mapping.css';
 
 const CountryMapping = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Country Mapping</h1>
-        <p className="breadcrumb">Mapping / Country Mapping</p>
-      </div>
+    <div className="mapping-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Country Mappings</h2>

@@ -3,11 +3,7 @@ import './MasterModel.css';
 
 const ConfigGroup = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Config Group</h1>
-        <p className="breadcrumb">Master Model / Config Group</p>
-      </div>
+    <div className="master-model-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Configuration Groups</h2>

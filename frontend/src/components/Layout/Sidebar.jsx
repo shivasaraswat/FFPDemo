@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -133,6 +133,45 @@ const Sidebar = () => {
     }
   ], [t]);
 
+  // Define child modules for each parent module
+  const parentChildMap = useMemo(() => ({
+    'MASTER_MODEL': ['CONFIG_GROUP', 'CONFIG_VALUES', 'MANAGE_MASTERS', 'API_LOGS', 'DATA_MIGRATION', 'EMAIL_CONFIGURATIONS'],
+    'MAPPING': ['COUNTRY_MAPPING', 'GENERAL_DISTRIBUTORS'],
+    'FIELD_FIX': ['CREATE_NEW_FIELD_FIX', 'SAVED_FIELD_FIX', 'PENDING_FOR_APPROVAL', 'RETURNED_FIELD_FIX', 'ARCHIVED_FIELD_FIX', 'RELEASED_FIELD_FIX', 'NEW_FIELD_FIX_FROM_CSHQ', 'ON_HOLD_FIELD_FIX', 'READY_TO_RELEASE', 'RELEASED_FIELD_FIX_TO_GD', 'FIELD_FIX_LIMITED_TO_RC', 'NEW_FIELD_FIX_FROM_QM'],
+    'FIELD_FIX_PROGRESS': ['FIELD_FIX_PROGRESS_UPDATE', 'FIELD_FIX_PROGRESS_UPDATE_RC', 'FALCON_UPDATES', 'ON_HOLD_FIELD_FIX_PROGRESS', 'ARCHIVED_FIELD_FIX_PROGRESS'],
+    'USER_MANAGEMENT': ['MANAGE_USERS', 'MANAGE_ROLES', 'DEACTIVATED_USERS']
+  }), []);
+
+  // Helper function to check if user has any child permission for a parent module
+  const hasAnyChildPermission = useCallback((parentKey) => {
+    const childModules = parentChildMap[parentKey];
+    if (!childModules) {
+      // If no child modules defined, check parent permission directly
+      return hasPermission(parentKey, 'read_only');
+    }
+    
+    // Check if user has permission for any child module
+    return childModules.some(childKey => hasPermission(childKey, 'read_only'));
+  }, [parentChildMap, hasPermission]);
+
+  // Helper function to check if parent should be shown
+  // A parent should only be shown if at least one child has permission
+  // OR if the parent has permission AND at least one child has permission
+  const shouldShowParent = useCallback((parentKey) => {
+    const childModules = parentChildMap[parentKey];
+    if (!childModules) {
+      // If no child modules defined, check parent permission directly
+      return hasPermission(parentKey, 'read_only');
+    }
+    
+    // Check if user has permission for any child module
+    const hasAnyChild = childModules.some(childKey => hasPermission(childKey, 'read_only'));
+    
+    // Only show parent if at least one child has permission
+    // This ensures that if parent has permission but all children are NONE, parent won't show
+    return hasAnyChild;
+  }, [parentChildMap, hasPermission]);
+
   // Filter menu items based on permissions
   const menuItems = useMemo(() => {
     return allMenuItems.map(item => {
@@ -144,16 +183,25 @@ const Sidebar = () => {
         return item;
       }
       
-      // Check if user has permission for parent screen
-      const hasParentPermission = hasPermission(item.accessObjectName, 'read_only');
+      // For parent modules with children, only show if at least one child has permission
+      // This prevents showing parent when all children have NONE access
+      if (parentChildMap[item.accessObjectName]) {
+        const shouldShow = shouldShowParent(item.accessObjectName);
+        if (!shouldShow) {
+          return null;
+        }
+        return item;
+      }
       
+      // For modules without children, check parent permission directly
+      const hasParentPermission = hasPermission(item.accessObjectName, 'read_only');
       if (!hasParentPermission) {
         return null;
       }
       
       return item;
     }).filter(item => item !== null);
-  }, [permissions, hasPermission, isAdmin]);
+  }, [permissions, hasPermission, isAdmin, parentChildMap, hasAnyChildPermission, shouldShowParent, allMenuItems]);
 
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');

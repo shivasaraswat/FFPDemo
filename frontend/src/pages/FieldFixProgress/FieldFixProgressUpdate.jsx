@@ -3,11 +3,7 @@ import './FieldFixProgress.css';
 
 const FieldFixProgressUpdate = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Field Fix Progress Update</h1>
-        <p className="breadcrumb">Field Fix Progress / Field Fix Progress Update</p>
-      </div>
+    <div className="field-fix-progress-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Progress Updates</h2>

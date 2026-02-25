@@ -3,11 +3,7 @@ import './Mapping.css';
 
 const GeneralDistributors = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>General Distributors</h1>
-        <p className="breadcrumb">Mapping / General Distributors</p>
-      </div>
+    <div className="mapping-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>General Distributors</h2>

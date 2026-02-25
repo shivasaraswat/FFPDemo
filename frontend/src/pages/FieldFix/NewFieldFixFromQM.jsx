@@ -3,11 +3,7 @@ import './FieldFix.css';
 
 const NewFieldFixFromQM = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>New Field Fix From QM</h1>
-        <p className="breadcrumb">Field Fix / New Field Fix From QM</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>New Field Fixes from QM</h2>

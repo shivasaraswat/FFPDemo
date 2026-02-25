@@ -3,11 +3,7 @@ import './FieldFix.css';
 
 const ReleasedFieldFixToGD = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Released Field Fix to GD</h1>
-        <p className="breadcrumb">Field Fix / Released Field Fix to GD</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Released to GD</h2>

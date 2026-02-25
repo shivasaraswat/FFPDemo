@@ -3,11 +3,7 @@ import './FieldFix.css';
 
 const OnHoldFieldFix = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>On Hold Field Fix</h1>
-        <p className="breadcrumb">Field Fix / On Hold Field Fix</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>On Hold Field Fixes</h2>

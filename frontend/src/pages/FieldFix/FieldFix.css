@@ -1,3 +1,17 @@
+.manage-field-fix-container {
+  padding: 0;
+  background: transparent;
+  width: 100%;
+}
+
+.field-fix-content {
+  padding: 0;
+}
+
+.field-fix-tab-content {
+  padding: 0;
+}
+
 .page-container {
   padding: 0;
   min-height: 100vh;

@@ -3,11 +3,7 @@ import './MasterModel.css';
 
 const EmailConfigurations = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Email Configurations</h1>
-        <p className="breadcrumb">Master Model / Email Configurations</p>
-      </div>
+    <div className="master-model-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Email Settings</h2>

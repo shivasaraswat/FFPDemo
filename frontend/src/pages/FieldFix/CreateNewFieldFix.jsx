@@ -26,11 +26,7 @@ const CreateNewFieldFix = () => {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Create New Field Fix</h1>
-        <p className="breadcrumb">Field Fix / Create New Field Fix</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Create New Field Fix</h2>

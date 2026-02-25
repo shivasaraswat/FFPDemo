@@ -3,11 +3,7 @@ import './FieldFix.css';
 
 const ArchivedFieldFix = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Archived Field Fix</h1>
-        <p className="breadcrumb">Field Fix / Archived Field Fix</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Archived Field Fixes</h2>

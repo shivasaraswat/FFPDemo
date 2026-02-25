@@ -1,3 +1,17 @@
+.manage-field-fix-progress-container {
+  padding: 0;
+  background: transparent;
+  width: 100%;
+}
+
+.field-fix-progress-content {
+  padding: 0;
+}
+
+.field-fix-progress-tab-content {
+  padding: 0;
+}
+
 .page-container {
   padding: 2rem;
   min-height: 100vh;

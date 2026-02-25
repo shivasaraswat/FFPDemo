@@ -152,6 +152,11 @@ export const AuthProvider = ({ children }) => {
     return checkPermission(permissions, moduleKey, requiredLevel);
   };
 
+  const refreshPermissions = async () => {
+    // Reload permissions for the current selected role (or all roles if no role selected)
+    await loadPermissions(selectedRole);
+  };
+
   const updateUser = (updatedUserData) => {
     setUser(updatedUserData);
     localStorage.setItem('user', JSON.stringify(updatedUserData));
@@ -169,7 +174,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    hasPermission
+    hasPermission,
+    refreshPermissions
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

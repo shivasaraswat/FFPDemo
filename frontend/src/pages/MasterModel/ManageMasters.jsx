@@ -166,7 +166,7 @@ const ManageMasters = () => {
   }
 
   return (
-    <div className="">
+    <div className="manage-masters-content">
       <style>{`
         .master-table-container::-webkit-scrollbar {
           display: none !important;

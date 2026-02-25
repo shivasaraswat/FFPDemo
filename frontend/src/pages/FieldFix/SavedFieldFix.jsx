@@ -3,11 +3,7 @@ import './FieldFix.css';
 
 const SavedFieldFix = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Saved Field Fix</h1>
-        <p className="breadcrumb">Field Fix / Saved Field Fix</p>
-      </div>
+    <div className="field-fix-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Saved Field Fixes</h2>

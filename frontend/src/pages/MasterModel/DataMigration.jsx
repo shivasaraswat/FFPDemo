@@ -3,11 +3,7 @@ import './MasterModel.css';
 
 const DataMigration = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Data Migration</h1>
-        <p className="breadcrumb">Master Model / Data Migration</p>
-      </div>
+    <div className="master-model-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>Data Migration Tools</h2>

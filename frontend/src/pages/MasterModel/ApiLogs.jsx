@@ -3,11 +3,7 @@ import './MasterModel.css';
 
 const ApiLogs = () => {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>API Logs</h1>
-        <p className="breadcrumb">Master Model / API Logs</p>
-      </div>
+    <div className="master-model-tab-content">
       <div className="page-content">
         <div className="card">
           <h2>API Request Logs</h2>
